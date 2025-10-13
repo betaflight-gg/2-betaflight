@@ -41,7 +41,7 @@ stm32.mak
 /support/scripts
 
 # artefacts for VS Code
-/.vscode/
+# /.vscode/
 
 # artefacts for Visual Studio
 /.vs

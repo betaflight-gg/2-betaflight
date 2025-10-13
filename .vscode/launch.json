@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug MICOAIR743 (JLink)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "executable": "obj/main/betaflight_STM32H743_MICOAIR743.elf",
+            "serverpath": "${env:JLINK_SERVER}",
+            "servertype": "jlink",
+            "device": "STM32H743VI",
+            "interface": "swd",
+            "armToolchainPath": "${workspaceRoot}/tools/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi/bin",
+            "showDevDebugOutput": "raw",
+            "svdFile": "",
+            // "runToEntryPoint": "main",
+            "openOCDLaunchCommands": [
+                "adapter speed 4000"
+            ],
+            "preLaunchTask": "",
+            "postLaunchCommands": [
+                "monitor reset"
+            ]
+        },
+        {
+            "name": "Debug NEUTRONRCF435 (JLink)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            // "executable": "obj/main/betaflight_AT32F435G_NEUTRONRCF435.elf",
+            // "executable": "obj/main/betaflight_AT32F435G_TUNERCF435.elf",
+            "executable": "obj/main/betaflight_AT32F435M_GREATMOUNTAINF435.elf",
+            "serverpath": "${env:JLINK_SERVER}",
+            "servertype": "jlink",
+            "device": "AT32F437VMT7",
+            "interface": "swd",
+            "armToolchainPath": "${workspaceRoot}/tools/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi/bin",
+            "showDevDebugOutput": "raw",
+            "svdFile": "",
+            // "runToEntryPoint": "main",
+            "openOCDLaunchCommands": [
+                "adapter_khz 4000"
+            ],
+            "preLaunchTask": "",
+            "postLaunchCommands": [
+                "monitor reset"
+            ]
+        }
+        
+    ]
+}
