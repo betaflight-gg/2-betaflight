@@ -38,7 +38,7 @@
             "armToolchainPath": "${workspaceRoot}/tools/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi/bin",
             "showDevDebugOutput": "raw",
             "svdFile": "",
-            // "runToEntryPoint": "main",
+            "runToEntryPoint": "main",
             "openOCDLaunchCommands": [
                 "adapter_khz 4000"
             ],
