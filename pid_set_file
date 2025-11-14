@@ -1,0 +1,9 @@
+set p_roll = 0
+set i_roll = 0
+set d_roll = 0
+set f_roll = 0
+
+set p_yaw = 0
+set i_yaw = 0
+set d_yaw = 0
+set f_yaw = 0

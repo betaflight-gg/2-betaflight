@@ -1,0 +1,12 @@
+from building import *
+import os
+
+cwd = GetCurrentDir()
+src = Glob("./src/*.c")
+path = [cwd, os.path.join(cwd, "inc")]
+
+group = DefineGroup(
+    "TASK_TOOL_01_ANOTC_TELEM_EN", src, depend=["TASK_TOOL_01_ANOTC_TELEM_EN"], CPPPATH=path
+)
+
+Return("group")
