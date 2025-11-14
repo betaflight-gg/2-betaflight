@@ -558,3 +558,13 @@ INCLUDE_DIRS += $(LIB_MAIN_DIR)/$(OLC_DIR)
 SRC += $(OLC_DIR)/olc.c
 SIZE_OPTIMISED_SRC += $(OLC_DIR)/olc.c
 endif
+
+# ANTC_LOG_TELEM source files
+# Note: ANTC_LOG is a C preprocessor macro defined in config.h, not a Makefile variable
+# The source files are conditionally compiled with #ifdef ANTC_LOG
+ANTC_LOG_TELEM_SRC = \
+            ANTC_LOG_TELEM/src/antc_log_protocol.c \
+            ANTC_LOG_TELEM/src/antc_log_uart.c
+
+SRC += $(ANTC_LOG_TELEM_SRC)
+INCLUDE_DIRS += $(SRC_DIR)/ANTC_LOG_TELEM/inc

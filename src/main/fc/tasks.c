@@ -113,6 +113,10 @@
 
 #include "tasks.h"
 
+#ifdef ANTC_LOG
+#include "antc_log_protocol.h"
+#endif
+
 // taskUpdateRxMain() has occasional peaks in execution time so normal moving average duration estimation doesn't work
 // Decay the estimated max task duration by 1/(1 << RX_TASK_DECAY_SHIFT) on every invocation
 #define RX_TASK_DECAY_SHIFT 6
@@ -177,6 +181,8 @@ static void taskHandleSerial(timeUs_t currentTimeUs)
 #ifdef ANTC_LOG
     // UART2 串口打印功能：每2秒打印"你好"，波特率57600
     taskUart2Print(currentTimeUs);
+    // ANTC_LOG串口发送任务：每20ms发送PID数据
+    antcLogTask(currentTimeUs);
 #else
     UNUSED(currentTimeUs);
 #endif
@@ -538,6 +544,10 @@ void tasksInit(void)
 
     setTaskEnabled(TASK_SERIAL, true);
     rescheduleTask(TASK_SERIAL, TASK_PERIOD_HZ(serialConfig()->serial_update_rate_hz));
+
+#ifdef ANTC_LOG
+    antcLogInit();
+#endif
 
     const bool useBatteryVoltage = batteryConfig()->voltageMeterSource != VOLTAGE_METER_NONE;
     setTaskEnabled(TASK_BATTERY_VOLTAGE, useBatteryVoltage);
