@@ -5,8 +5,8 @@
 [CFG][IMU_REG][count=4][time=134354us][1] BMI270 reg=0x7E value=0xB6
 [CFG][IMU_REG][count=5][time=257539us][2] BMI270 reg=0x7C value=0x00
 [CFG][IMU_REG][count=6][time=270414us][3] BMI270 reg=0x59 value=0x00
-[CFG][IMU_REG][count=7][time=298082us][4] BMI270 reg=0x59 value=0x01
-[CFG][IMU_REG][count=8][time=310957us][5] BMI270 reg=0x40 value=0x9B
+[CFG][IMU_REG][count=7][time=298083us][4] BMI270 reg=0x59 value=0x01
+[CFG][IMU_REG][count=8][time=310958us][5] BMI270 reg=0x40 value=0x9B
 [CFG][IMU_REG][count=9][time=323833us][6] BMI270 reg=0x41 value=0x03
 [CFG][IMU_REG][count=10][time=336708us][7] BMI270 reg=0x42 value=0xCD
 [CFG][IMU_REG][count=11][time=349757us][8] BMI270 reg=0x43 value=0x08
@@ -14,53 +14,59 @@
 [CFG][IMU_REG][count=13][time=375855us][10] BMI270 reg=0x53 value=0x0A
 [CFG][IMU_REG][count=14][time=389078us][11] BMI270 reg=0x7C value=0x02
 [CFG][IMU_REG][count=15][time=402301us][12] BMI270 reg=0x7D value=0x0E
-[CFG][LOGGER][count=16][time=935600us]config dump (post-sensors)
+[CFG][LOGGER][count=16][time=935585us]config dump (post-sensors)
 
-[CFG][IMU][count=17][time=946746us]==== IMU CONFIG ====
-[CFG][IMU][count=18][time=956999us][1] acc lpf=25Hz highFSR=0 zero=[0,0,0,0] trims=[0,0]
-[CFG][IMU][count=19][time=972629us][2] gyro hw_lpf=0 highFSR=0 calDur=125 moveThr=48 offsetYaw=0 enabledMask=0x01
-[CFG][IMU][count=20][time=992596us][3] gyro lpf1 type=0 static=250Hz dyn=[250,500] expo=5 lpf2 type=0 static=500Hz
-[CFG][IMU][count=21][time=1012733us][4] gyro notch1=0/0 Hz notch2=0/0 Hz simplified=1 multi=100
-[CFG][IMU][count=22][time=1029574us][5] imu kp=2500 ki=0 smallAngle=25 processDenom=2 magDecl=0
-[CFG][IMU_ALIGN][count=23][time=1046409us]board roll=0 pitch=0 yaw=0
-[CFG][IMU_ALIGN][count=24][time=1058571us]gyro0 align=7 cs=0x0014 exti=0x001F busType=2 spi=1 i2c=0
-[CFG][IMU_ALIGN][count=25][time=1076102us]gyro0 customAlign roll=0 pitch=1800 yaw=1800
+[CFG][IMU][count=17][time=946732us]==== IMU CONFIG ====
+[CFG][IMU][count=18][time=956988us][1] acc lpf=25Hz highFSR=0 zero=[-1209,-1508,-2711,1] trims=[0,0]
+[CFG][IMU][count=19][time=974698us][2] gyro hw_lpf=0 highFSR=0 calDur=125 moveThr=48 offsetYaw=0 enabledMask=0x01
+[CFG][IMU][count=20][time=994665us][3] gyro lpf1 type=0 static=250Hz dyn=[250,500] expo=5 lpf2 type=0 static=500Hz
+[CFG][IMU][count=21][time=1014802us][4] gyro notch1=0/0 Hz notch2=0/0 Hz simplified=1 multi=100
+[CFG][IMU][count=22][time=1031636us][5] gyro0 zero=[0,0,0]
+[CFG][IMU][count=23][time=1042061us][6] imu kp=2500 ki=0 smallAngle=25 processDenom=2 magDecl=0
+[CFG][IMU_ALIGN][count=24][time=1058895us]board roll=0 pitch=0 yaw=0
+[CFG][IMU_ALIGN][count=25][time=1071057us]gyro0 align=7 cs=0x0014 exti=0x001F busType=2 spi=1 i2c=0
+[CFG][IMU_ALIGN][count=26][time=1088589us]gyro0 customAlign roll=0 pitch=1800 yaw=1800
 
-[CFG][FILTER][count=26][time=1091376us]==== FILTER CONFIG ====
-[CFG][FILTER][count=27][time=1102844us][1] dyn_notch enabled=1 count=3 min=100Hz max=600Hz q=300
-[CFG][FILTER][count=28][time=1119867us][2] rpm_filter enabled=1 harmonics=3 min=100Hz fade=50Hz q=500 lpf=150Hz weights=[100,100,100]
-[CFG][FILTER][count=29][time=1143300us][3] gyro_lpf1 enabled=1 type=0 static=250Hz dyn=[250,500] expo=5
-[CFG][FILTER][count=30][time=1161525us][4] gyro_lpf2 enabled=1 type=0 static=500Hz
-[CFG][FILTER][count=31][time=1176111us][5] gyro_soft_notch1 enabled=0 freq=0Hz cutoff=0Hz
-[CFG][FILTER][count=32][time=1191910us][6] gyro_soft_notch2 enabled=0 freq=0Hz cutoff=0Hz
+[CFG][FILTER][count=27][time=1103863us]==== FILTER CONFIG ====
+[CFG][FILTER][count=28][time=1115330us][1] dyn_notch enabled=0 count=0 min=100Hz max=600Hz q=300
+[CFG][FILTER][count=29][time=1132354us][2] rpm_filter enabled=0 harmonics=0 min=50Hz fade=50Hz q=500 lpf=150Hz weights=[100,100,100]
+[CFG][FILTER][count=30][time=1155613us][3] gyro_lpf1 enabled=1 type=0 static=250Hz dyn=[250,500] expo=5
+[CFG][FILTER][count=31][time=1173838us][4] gyro_lpf2 enabled=1 type=0 static=500Hz
+[CFG][FILTER][count=32][time=1188424us][5] gyro_soft_notch1 enabled=0 freq=0Hz cutoff=0Hz
+[CFG][FILTER][count=33][time=1204223us][6] gyro_soft_notch2 enabled=0 freq=0Hz cutoff=0Hz
 
-[CFG][PID][count=33][time=1207705us]==== PID CONFIG ====
-[CFG][PID][count=34][time=1218129us][1] pid_process_denom=1 runaway=1 delay=500 throttle=20
-[CFG][PID][count=35][time=1234285us][2] profile0 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
-[CFG][PID][count=36][time=1256164us][3] profile0 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
-[CFG][PID][count=37][time=1280470us][4] profile0 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
-[CFG][PID][count=38][time=1303387us][5] profile0 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
-[CFG][PID][count=39][time=1324909us]profile0 axis=0 PIDFS=[45,80,30,120,0] dmax=40
-[CFG][PID][count=40][time=1339494us]profile0 axis=1 PIDFS=[47,84,34,125,0] dmax=46
-[CFG][PID][count=41][time=1354079us]profile0 axis=2 PIDFS=[45,80,0,120,0] dmax=0
-[CFG][PID][count=42][time=1368324us][6] profile1 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
-[CFG][PID][count=43][time=1390202us][7] profile1 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
-[CFG][PID][count=44][time=1414509us][8] profile1 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
-[CFG][PID][count=45][time=1437425us][9] profile1 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
-[CFG][PID][count=46][time=1458948us]profile1 axis=0 PIDFS=[45,80,30,120,0] dmax=40
-[CFG][PID][count=47][time=1473533us]profile1 axis=1 PIDFS=[47,84,34,125,0] dmax=46
-[CFG][PID][count=48][time=1488116us]profile1 axis=2 PIDFS=[45,80,0,120,0] dmax=0
-[CFG][PID][count=49][time=1502363us][10] profile2 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
-[CFG][PID][count=50][time=1524415us][11] profile2 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
-[CFG][PID][count=51][time=1548895us][12] profile2 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
-[CFG][PID][count=52][time=1571985us][13] profile2 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
-[CFG][PID][count=53][time=1593681us]profile2 axis=0 PIDFS=[45,80,30,120,0] dmax=40
-[CFG][PID][count=54][time=1608266us]profile2 axis=1 PIDFS=[47,84,34,125,0] dmax=46
-[CFG][PID][count=55][time=1622850us]profile2 axis=2 PIDFS=[45,80,0,120,0] dmax=0
-[CFG][PID][count=56][time=1637096us][14] profile3 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
-[CFG][PID][count=57][time=1659148us][15] profile3 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
-[CFG][PID][count=58][time=1683628us][16] profile3 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
-[CFG][PID][count=59][time=1706718us][17] profile3 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
-[CFG][PID][count=60][time=1728414us]profile3 axis=0 PIDFS=[45,80,30,120,0] dmax=40
-[CFG][PID][count=61][time=1742999us]profile3 axis=1 PIDFS=[47,84,34,125,0] dmax=46
-[CFG][PID][count=62][time=1757582us]profile3 axis=2 PIDFS=[45,80,0,120,0] dmax=0
+[CFG][PID][count=34][time=1220018us]==== PID CONFIG ====
+[CFG][PID][count=35][time=1230442us][1] pid_process_denom=1 runaway=1 delay=500 throttle=20
+
+[CFG][PID][count=36][time=1246600us][2] profile0 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
+[CFG][PID][count=37][time=1268824us][3] profile0 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
+[CFG][PID][count=38][time=1293130us][4] profile0 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
+[CFG][PID][count=39][time=1316047us][5] profile0 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
+[CFG][PID][count=40][time=1337568us]profile0 axis=0 PIDFS=[0,0,0,0,0] dmax=40
+[CFG][PID][count=41][time=1351286us]profile0 axis=1 PIDFS=[47,84,34,125,0] dmax=46
+[CFG][PID][count=42][time=1365869us]profile0 axis=2 PIDFS=[0,0,0,0,0] dmax=0
+
+[CFG][PID][count=43][time=1379423us][6] profile1 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
+[CFG][PID][count=44][time=1401647us][7] profile1 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
+[CFG][PID][count=45][time=1425954us][8] profile1 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
+[CFG][PID][count=46][time=1448870us][9] profile1 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
+[CFG][PID][count=47][time=1470393us]profile1 axis=0 PIDFS=[45,80,30,120,0] dmax=40
+[CFG][PID][count=48][time=1484978us]profile1 axis=1 PIDFS=[47,84,34,125,0] dmax=46
+[CFG][PID][count=49][time=1499561us]profile1 axis=2 PIDFS=[45,80,0,120,0] dmax=0
+
+[CFG][PID][count=50][time=1513809us][10] profile2 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
+[CFG][PID][count=51][time=1536207us][11] profile2 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
+[CFG][PID][count=52][time=1560687us][12] profile2 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
+[CFG][PID][count=53][time=1583778us][13] profile2 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
+[CFG][PID][count=54][time=1605473us]profile2 axis=0 PIDFS=[45,80,30,120,0] dmax=40
+[CFG][PID][count=55][time=1620058us]profile2 axis=1 PIDFS=[47,84,34,125,0] dmax=46
+[CFG][PID][count=56][time=1634642us]profile2 axis=2 PIDFS=[45,80,0,120,0] dmax=0
+
+[CFG][PID][count=57][time=1648889us][14] profile3 name= yawLPF=100 dtermLPF1 type=0/75Hz dyn[75,150] expo=5 lpf2 type=0/150Hz
+[CFG][PID][count=58][time=1671287us][15] profile3 dtermNotch=0/0Hz pidSum=500 yawSum=400 motorLimit=100 itermLimit=400 windup=80 yawLPF=100
+[CFG][PID][count=59][time=1695767us][16] profile3 crash dThr=50 gThr=400 setpt=350 time=500 delay=0 limitYaw=200 recovery=10 mode=0
+[CFG][PID][count=60][time=1718857us][17] profile3 antiGravity gain=80 cutoff=5 throttleBoost=5/15 tpaMode=1 rate=65 bp=1350
+[CFG][PID][count=61][time=1740553us]profile3 axis=0 PIDFS=[45,80,30,120,0] dmax=40
+[CFG][PID][count=62][time=1755138us]profile3 axis=1 PIDFS=[47,84,34,125,0] dmax=46
+[CFG][PID][count=63][time=1769722us]profile3 axis=2 PIDFS=[45,80,0,120,0] dmax=0
+[CFG][IMU][count=64][time=3787061us]gyro calib zero=[0.524,0.444,2.451]

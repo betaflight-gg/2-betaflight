@@ -268,6 +268,18 @@ void configLogDumpImuCalibration(void)
             gyroCfg->gyro_soft_notch_cutoff_2,
             gyroCfg->simplified_gyro_filter,
             gyroCfg->simplified_gyro_filter_multiplier);
+
+        // 当前 gyro 校准零偏（注意：在系统刚启动且尚未完成校准时，这些值通常是 0）
+        if (GYRO_COUNT > 0) {
+            const gyroSensor_t *g0 = &gyro.gyroSensor[0];
+            configLogMessage(
+                "IMU",
+                "[%u] gyro0 zero=[%d,%d,%d]",
+                (unsigned)++idx,
+                (int)g0->gyroDev.gyroZero[X],
+                (int)g0->gyroDev.gyroZero[Y],
+                (int)g0->gyroDev.gyroZero[Z]);
+        }
     }
 
     const imuConfig_t *imuCfg = imuConfig();
@@ -411,6 +423,9 @@ void configLogDumpPidProfiles(void)
         if (!profile) {
             continue;
         }
+
+        // 每个 profile 之间空一行，便于阅读
+        configLogBlankLine();
 
         configLogMessage(
             "PID",

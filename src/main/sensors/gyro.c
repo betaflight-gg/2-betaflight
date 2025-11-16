@@ -59,6 +59,7 @@
 #include "sensors/gyro.h"
 #include "sensors/gyro_init.h"
 #include "debug_gpio/debug_gpio.h"
+#include "config_log/config_log.h"
 
 #if ((TARGET_FLASH_SIZE > 128) && (defined(USE_GYRO_SPI_ICM20601) || defined(USE_GYRO_SPI_ICM20689) || defined(USE_GYRO_SPI_MPU6500)))
 #define USE_GYRO_SLEW_LIMITER
@@ -250,6 +251,24 @@ STATIC_UNIT_TESTED NOINLINE void performGyroCalibration(gyroSensor_t *gyroSensor
         if (!firstArmingCalibrationWasStarted || (getArmingDisableFlags() & ~ARMING_DISABLED_CALIBRATING) == 0) {
             beeper(BEEPER_GYRO_CALIBRATED);
         }
+
+#ifdef USE_CONFIG_LOGGER
+        // 在校准完成时打印最终零偏值（手动格式化为定点小数，printf 不支持 %f）
+        const float zx = gyroSensor->gyroDev.gyroZero[X];
+        const float zy = gyroSensor->gyroDev.gyroZero[Y];
+        const float zz = gyroSensor->gyroDev.gyroZero[Z];
+
+        const int zx_milli = lrintf(zx * 1000.0f);
+        const int zy_milli = lrintf(zy * 1000.0f);
+        const int zz_milli = lrintf(zz * 1000.0f);
+
+        configLogMessage(
+            "IMU",
+            "gyro calib zero=[%d.%03d,%d.%03d,%d.%03d]",
+            zx_milli / 1000, abs(zx_milli % 1000),
+            zy_milli / 1000, abs(zy_milli % 1000),
+            zz_milli / 1000, abs(zz_milli % 1000));
+#endif
     }
 
     --gyroSensor->calibration.cyclesRemaining;
