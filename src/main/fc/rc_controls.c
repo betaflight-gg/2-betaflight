@@ -232,12 +232,13 @@ void processRcStickPositions(void)
     }
     doNotRepeat = true;
 
-    #ifdef USE_USB_CDC_HID
-    // If this target is used as a joystick, we should leave here.
-    if (cdcDeviceIsMayBeActive() || IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) {
+#ifdef USE_USB_CDC_HID
+    // 只在用户显式打开 BOXSTICKCOMMANDDISABLE 时禁止摇杆命令，
+    // 不再因为 USB 被识别为 HID/COMPOSITE 就整体屏蔽解锁等操作
+    if (IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) {
         return;
     }
-    #endif
+#endif
 
     // actions during not armed
 

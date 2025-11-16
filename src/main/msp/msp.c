@@ -224,6 +224,9 @@ mspDescriptor_t mspDescriptorAlloc(void)
     return (mspDescriptor_t)mspDescriptor++;
 }
 
+// 旧版用于通过 MSP 连接状态来禁止/允许解锁的逻辑。
+// 现在我们不再依赖 MSP 来设置 ARMING_DISABLED_MSP，因此整块函数屏蔽掉。
+#if 0
 static uint32_t mspArmingDisableFlags = 0;
 
 #ifndef SIMULATOR_BUILD
@@ -242,6 +245,7 @@ static bool mspIsMspArmingEnabled(void)
 {
     return mspArmingDisableFlags == 0;
 }
+#endif
 
 #define MSP_PASSTHROUGH_ESC_4WAY 0xff
 
@@ -3627,29 +3631,22 @@ static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t cmdMSP, 
 #ifndef USE_RUNAWAY_TAKEOFF
             UNUSED(disableRunawayTakeoff);
 #endif
+            UNUSED(command);
+            // 原逻辑：收到 MSP_SET_ARMING_DISABLED 时，会根据 command
+            // 设置/清除 ARMING_DISABLED_MSP，从而禁止/允许解锁。
+            // 为了避免“只要连上 Configurator 就无法解锁”，这里屏蔽掉
+            // 对 ARMING_DISABLED_MSP 的修改以及强制 disarm 行为。
+
             if (sbufBytesRemaining(src)) {
                 disableRunawayTakeoff = sbufReadU8(src);
             }
-            if (command) {
-#ifndef SIMULATOR_BUILD // In simulator mode we can safely arm with MSP link.
-                mspArmingDisableByDescriptor(srcDesc);
-                setArmingDisabled(ARMING_DISABLED_MSP);
-                if (ARMING_FLAG(ARMED)) {
-                    disarm(DISARM_REASON_ARMING_DISABLED);
-                }
-#endif
+
 #ifdef USE_RUNAWAY_TAKEOFF
-                runawayTakeoffTemporaryDisable(false);
+            // 保留 Runaway Takeoff 相关的开关能力，不依赖 MSP 解锁禁用逻辑
+            runawayTakeoffTemporaryDisable(disableRunawayTakeoff ? true : false);
+#else
+            UNUSED(disableRunawayTakeoff);
 #endif
-            } else {
-                mspArmingEnableByDescriptor(srcDesc);
-                if (mspIsMspArmingEnabled()) {
-                    unsetArmingDisabled(ARMING_DISABLED_MSP);
-#ifdef USE_RUNAWAY_TAKEOFF
-                    runawayTakeoffTemporaryDisable(disableRunawayTakeoff);
-#endif
-                }
-            }
         }
         break;
 
