@@ -125,34 +125,34 @@
 
 #ifdef ANTC_LOG
 // UART2 串口打印功能：每2秒打印"你好"，波特率57600
-static serialPort_t *debugUart2Port = NULL;
-static timeUs_t lastPrintTimeUs = 0;
-static bool uart2Initialized = false;
-#define UART2_PRINT_INTERVAL_US (2 * 1000 * 1000) // 2秒，单位微秒
-#define UART2_BAUD_RATE 57600
+// static serialPort_t *debugUart2Port = NULL;
+// static timeUs_t lastPrintTimeUs = 0;
+// static bool uart2Initialized = false;
+// #define UART2_PRINT_INTERVAL_US (2 * 1000 * 1000) // 2秒，单位微秒
+// #define UART2_BAUD_RATE 57600
 
 // 串口2打印任务函数
-static void taskUart2Print(timeUs_t currentTimeUs)
-{
-    // 初始化串口2（仅在第一次调用时）
-    if (!uart2Initialized) {
-        debugUart2Port = openSerialPort(SERIAL_PORT_USART2, FUNCTION_NONE, NULL, NULL, 
-                                         UART2_BAUD_RATE, MODE_TX, SERIAL_NOT_INVERTED);
-        if (debugUart2Port != NULL) {
-            lastPrintTimeUs = currentTimeUs;
-            uart2Initialized = true;
-        }
-    }
+// static void taskUart2Print(timeUs_t currentTimeUs)
+// {
+//     // 初始化串口2（仅在第一次调用时）
+//     if (!uart2Initialized) {
+//         debugUart2Port = openSerialPort(SERIAL_PORT_USART2, FUNCTION_NONE, NULL, NULL, 
+//                                          UART2_BAUD_RATE, MODE_TX, SERIAL_NOT_INVERTED);
+//         if (debugUart2Port != NULL) {
+//             lastPrintTimeUs = currentTimeUs;
+//             uart2Initialized = true;
+//         }
+//     }
 
-    // 每2秒打印一次"你好"
-    if (uart2Initialized && debugUart2Port != NULL) {
-        timeDelta_t deltaTimeUs = cmpTimeUs(currentTimeUs, lastPrintTimeUs);
-        if (deltaTimeUs >= UART2_PRINT_INTERVAL_US) {
-            serialPrint(debugUart2Port, "\r\n你好\r\n");
-            lastPrintTimeUs = currentTimeUs;
-        }
-    }
-}
+//     // 每2秒打印一次"你好"
+//     if (uart2Initialized && debugUart2Port != NULL) {
+//         timeDelta_t deltaTimeUs = cmpTimeUs(currentTimeUs, lastPrintTimeUs);
+//         if (deltaTimeUs >= UART2_PRINT_INTERVAL_US) {
+//             serialPrint(debugUart2Port, "\r\n你好\r\n");
+//             lastPrintTimeUs = currentTimeUs;
+//         }
+//     }
+// }
 #endif
 
 static void taskMain(timeUs_t currentTimeUs)
@@ -180,7 +180,7 @@ static void taskHandleSerial(timeUs_t currentTimeUs)
 
 #ifdef ANTC_LOG
     // UART2 串口打印功能：每2秒打印"你好"，波特率57600
-    taskUart2Print(currentTimeUs);
+    // taskUart2Print(currentTimeUs);
     // ANTC_LOG串口发送任务：每20ms发送PID数据
     antcLogTask(currentTimeUs);
 #else
