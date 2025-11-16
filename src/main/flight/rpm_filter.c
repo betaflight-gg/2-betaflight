@@ -172,7 +172,7 @@ FAST_CODE_NOINLINE void rpmFilterUpdate(void)
 FAST_CODE float rpmFilterApply(const int axis, float value)
 {
 #ifdef USE_DEBUG_GPIO
-    debugGpioPC0Low();
+    debugGpioPC2Low();
 #endif
     // Iterate over all notches on axis and apply each one to value.
     // Order of application doesn't matter because biquads are linear time-invariant filters.
@@ -189,7 +189,7 @@ FAST_CODE float rpmFilterApply(const int axis, float value)
 
     float result = value;
 #ifdef USE_DEBUG_GPIO
-    debugGpioPC0High();
+    debugGpioPC2High();
 #endif
     return result;
 }

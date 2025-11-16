@@ -191,6 +191,9 @@ typedef enum {
 #ifdef USE_GIMBAL
     TASK_GIMBAL,
 #endif
+#ifdef USE_DEBUG_GPIO
+    TASK_DEBUG_GPIO_TEST,
+#endif
 
     /* Count of real tasks */
     TASK_COUNT,

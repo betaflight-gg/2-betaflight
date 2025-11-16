@@ -409,7 +409,8 @@ static FAST_CODE void gyroUpdateSensor(gyroSensor_t *gyroSensor)
 FAST_CODE void gyroUpdate(void)
 {
 #ifdef USE_DEBUG_GPIO
-    debugGpioPC1Low();
+    debugGpioPC0Low();
+    // debugGpioPC2Low();
 #endif
     // ensure that gyroADC don't contain a stale value
     float adcSum[XYZ_AXIS_COUNT] = {0};
@@ -447,7 +448,8 @@ FAST_CODE void gyroUpdate(void)
         gyro.sampleCount++;
     }
 #ifdef USE_DEBUG_GPIO
-    debugGpioPC1High();
+    debugGpioPC0High();
+    // debugGpioPC2High();
 #endif
 }
 
