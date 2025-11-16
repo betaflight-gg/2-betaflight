@@ -543,6 +543,10 @@ endif
 
 SRC += $(FLASH_SRC) $(MSC_SRC) $(SDCARD_SRC) $(COMMON_SRC)
 
+# config logger (serial-based init tracing)
+SRC += config_log/config_log.c
+SRC += debug_gpio/debug_gpio.c
+
 #excludes
 SRC   := $(filter-out $(MCU_EXCLUDES), $(SRC))
 

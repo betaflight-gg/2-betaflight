@@ -42,6 +42,8 @@
 #include "config/config.h"
 #include "config/config_eeprom.h"
 #include "config/feature.h"
+#include "debug_gpio/debug_gpio.h"
+#include "config_log/config_log.h"
 
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/adc.h"
@@ -277,6 +279,10 @@ void init(void)
     // initialize IO (needed for all IO operations)
     IOInitGlobal();
 
+#ifdef USE_DEBUG_GPIO
+    debugGpioInit();
+#endif
+
 #if defined(USE_TARGET_CONFIG)
     // Call once before the config is loaded for any target specific configuration required to support loading the config
     targetConfiguration();
@@ -510,6 +516,8 @@ void init(void)
 
     serialInit(featureIsEnabled(FEATURE_SOFTSERIAL));
 
+    configLogInit();
+
     mixerInit(mixerConfig()->mixerMode);
 
 #ifdef USE_MOTOR
@@ -679,6 +687,7 @@ void init(void)
 
     // Finally initialize the gyro filtering
     gyroInitFilters();
+    configLogDumpFullConfig("post-sensors");
 
     pidInit(currentPidProfile);
 

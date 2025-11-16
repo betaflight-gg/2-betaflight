@@ -34,6 +34,7 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 
+#include "debug_gpio/debug_gpio.h"
 #include "pg/motor.h"
 
 #include "scheduler/scheduler.h"
@@ -170,6 +171,9 @@ FAST_CODE_NOINLINE void rpmFilterUpdate(void)
 
 FAST_CODE float rpmFilterApply(const int axis, float value)
 {
+#ifdef USE_DEBUG_GPIO
+    debugGpioPC0Low();
+#endif
     // Iterate over all notches on axis and apply each one to value.
     // Order of application doesn't matter because biquads are linear time-invariant filters.
     for (int i = 0; i < rpmFilter.numHarmonics; i++) {
@@ -183,7 +187,11 @@ FAST_CODE float rpmFilterApply(const int axis, float value)
         }
     }
 
-    return value;
+    float result = value;
+#ifdef USE_DEBUG_GPIO
+    debugGpioPC0High();
+#endif
+    return result;
 }
 
 bool isRpmFilterEnabled(void)

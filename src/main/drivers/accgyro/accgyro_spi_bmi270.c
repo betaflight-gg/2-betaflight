@@ -40,6 +40,8 @@
 
 #include "sensors/gyro.h"
 
+#include "config_log/config_log.h"
+
 // 10 MHz max SPI frequency
 #define BMI270_MAX_SPI_CLK_HZ 10000000
 
@@ -149,6 +151,7 @@ static uint8_t bmi270RegisterRead(const extDevice_t *dev, bmi270Register_e regis
 static void bmi270RegisterWrite(const extDevice_t *dev, bmi270Register_e registerId, uint8_t value, unsigned delayMs)
 {
     spiWriteReg(dev, registerId, value);
+    configLogRegisterWrite("BMI270", registerId, value);
     if (delayMs) {
         delay(delayMs);
     }
@@ -168,7 +171,10 @@ uint8_t bmi270Detect(const extDevice_t *dev)
 {
     bmi270EnableSPI(dev);
 
-    if (bmi270RegisterRead(dev, BMI270_REG_CHIP_ID) == BMI270_CHIP_ID) {
+    const uint8_t chipId = bmi270RegisterRead(dev, BMI270_REG_CHIP_ID);
+    configLogMessage("IMU_REG", "BMI270 chipId=0x%02X", chipId);
+
+    if (chipId == BMI270_CHIP_ID) {
         return BMI_270_SPI;
     }
 

@@ -47,6 +47,14 @@
 #include "sensors/gyro.h"
 #include "pg/gyrodev.h"
 
+#include "config_log/config_log.h"
+
+#define ICM_WRITE_REG(dev_, reg_, val_)   \
+    do {                                  \
+        spiWriteReg((dev_), (reg_), (val_)); \
+        configLogRegisterWrite("ICM426XX", (reg_), (val_)); \
+    } while (0)
+
 // Allows frequency to be set from the compile line EXTRA_FLAGS by adding e.g.
 // -D'ICM426XX_CLOCK=12000000'. If using the configurator this simply becomes
 // ICM426XX_CLOCK=12000000 in the custom settings text box.
@@ -250,13 +258,13 @@ static void icm426xxEnableExternalClock(const extDevice_t *dev)
         setUserBank(dev, ICM426XX_BANK_SELECT1);
         uint8_t intf_config5 = spiReadRegMsk(dev, ICM426XX_INTF_CONFIG5);
         intf_config5 = (intf_config5 & ~ICM426XX_INTF_CONFIG5_PIN9_FUNCTION_MASK) | ICM426XX_INTF_CONFIG5_PIN9_FUNCTION_CLKIN;  // Clear & set bits 2:1 to 0b10 for CLKIN
-        spiWriteReg(dev, ICM426XX_INTF_CONFIG5, intf_config5);
+        ICM_WRITE_REG(dev, ICM426XX_INTF_CONFIG5, intf_config5);
 
         // Switch to Bank 0 and set bit 2 in RTC_MODE (0x4D) to enable external CLK signal
         setUserBank(dev, ICM426XX_BANK_SELECT0);
         uint8_t rtc_mode = spiReadRegMsk(dev, ICM426XX_INTF_CONFIG1);
         rtc_mode |= ICM426XX_INTF_CONFIG1_CLKIN; // Enable external CLK signal
-        spiWriteReg(dev, ICM426XX_INTF_CONFIG1, rtc_mode);
+        ICM_WRITE_REG(dev, ICM426XX_INTF_CONFIG1, rtc_mode);
     }
 }
 #endif
@@ -265,7 +273,7 @@ static void icm426xxSoftReset(const extDevice_t *dev)
 {
     setUserBank(dev, ICM426XX_BANK_SELECT0);
 
-    spiWriteReg(dev, ICM426XX_RA_DEVICE_CONFIG, DEVICE_CONFIG_SOFT_RESET_BIT);
+    ICM_WRITE_REG(dev, ICM426XX_RA_DEVICE_CONFIG, DEVICE_CONFIG_SOFT_RESET_BIT);
 
     delay(1);
 }
@@ -274,7 +282,7 @@ uint8_t icm426xxSpiDetect(const extDevice_t *dev)
 {
     delay(1);                          // power-on time
     icm426xxSoftReset(dev);
-    spiWriteReg(dev, ICM426XX_RA_PWR_MGMT0, 0x00);
+    ICM_WRITE_REG(dev, ICM426XX_RA_PWR_MGMT0, 0x00);
 
 #if defined(USE_GYRO_CLKIN)
     icm426xxEnableExternalClock(dev);
@@ -302,6 +310,7 @@ uint8_t icm426xxSpiDetect(const extDevice_t *dev)
             icmDetected = MPU_NONE;
             break;
         }
+        configLogMessage("IMU_REG", "ICM426xx WHO_AM_I=0x%02X attempt=%u", whoAmI, (unsigned)attemptsRemaining);
         if (icmDetected != MPU_NONE) {
             break;
         }
@@ -348,13 +357,13 @@ static aafConfig_t getGyroAafConfig(const mpuSensor_e, const aafConfig_e);
 
 static void turnGyroAccOff(const extDevice_t *dev)
 {
-    spiWriteReg(dev, ICM426XX_RA_PWR_MGMT0, ICM426XX_PWR_MGMT0_GYRO_ACCEL_MODE_OFF);
+    ICM_WRITE_REG(dev, ICM426XX_RA_PWR_MGMT0, ICM426XX_PWR_MGMT0_GYRO_ACCEL_MODE_OFF);
 }
 
 // Turn on gyro and acc on in Low Noise mode
 static void turnGyroAccOn(const extDevice_t *dev)
 {
-    spiWriteReg(dev, ICM426XX_RA_PWR_MGMT0, ICM426XX_PWR_MGMT0_TEMP_DISABLE_OFF | ICM426XX_PWR_MGMT0_ACCEL_MODE_LN | ICM426XX_PWR_MGMT0_GYRO_MODE_LN);
+    ICM_WRITE_REG(dev, ICM426XX_RA_PWR_MGMT0, ICM426XX_PWR_MGMT0_TEMP_DISABLE_OFF | ICM426XX_PWR_MGMT0_ACCEL_MODE_LN | ICM426XX_PWR_MGMT0_GYRO_MODE_LN);
     delay(1);
 }
 
@@ -377,39 +386,39 @@ void icm426xxGyroInit(gyroDev_t *gyro)
     const mpuSensor_e gyroModel = gyro->mpuDetectionResult.sensor;
     aafConfig_t aafConfig = getGyroAafConfig(gyroModel, gyroConfig()->gyro_hardware_lpf);
     setUserBank(dev, ICM426XX_BANK_SELECT1);
-    spiWriteReg(dev, ICM426XX_RA_GYRO_CONFIG_STATIC3, aafConfig.delt);
-    spiWriteReg(dev, ICM426XX_RA_GYRO_CONFIG_STATIC4, aafConfig.deltSqr & 0xFF);
-    spiWriteReg(dev, ICM426XX_RA_GYRO_CONFIG_STATIC5, (aafConfig.deltSqr >> 8) | (aafConfig.bitshift << 4));
+    ICM_WRITE_REG(dev, ICM426XX_RA_GYRO_CONFIG_STATIC3, aafConfig.delt);
+    ICM_WRITE_REG(dev, ICM426XX_RA_GYRO_CONFIG_STATIC4, aafConfig.deltSqr & 0xFF);
+    ICM_WRITE_REG(dev, ICM426XX_RA_GYRO_CONFIG_STATIC5, (aafConfig.deltSqr >> 8) | (aafConfig.bitshift << 4));
 
     // Configure acc Anti-Alias Filter for 1kHz sample rate (see tasks.c)
     aafConfig = getGyroAafConfig(gyroModel, AAF_CONFIG_258HZ);
     setUserBank(dev, ICM426XX_BANK_SELECT2);
-    spiWriteReg(dev, ICM426XX_RA_ACCEL_CONFIG_STATIC2, aafConfig.delt << 1);
-    spiWriteReg(dev, ICM426XX_RA_ACCEL_CONFIG_STATIC3, aafConfig.deltSqr & 0xFF);
-    spiWriteReg(dev, ICM426XX_RA_ACCEL_CONFIG_STATIC4, (aafConfig.deltSqr >> 8) | (aafConfig.bitshift << 4));
+    ICM_WRITE_REG(dev, ICM426XX_RA_ACCEL_CONFIG_STATIC2, aafConfig.delt << 1);
+    ICM_WRITE_REG(dev, ICM426XX_RA_ACCEL_CONFIG_STATIC3, aafConfig.deltSqr & 0xFF);
+    ICM_WRITE_REG(dev, ICM426XX_RA_ACCEL_CONFIG_STATIC4, (aafConfig.deltSqr >> 8) | (aafConfig.bitshift << 4));
 
     // Configure gyro and acc UI Filters
     setUserBank(dev, ICM426XX_BANK_SELECT0);
-    spiWriteReg(dev, ICM426XX_RA_GYRO_ACCEL_CONFIG0, ICM426XX_ACCEL_UI_FILT_BW_LOW_LATENCY | ICM426XX_GYRO_UI_FILT_BW_LOW_LATENCY);
+    ICM_WRITE_REG(dev, ICM426XX_RA_GYRO_ACCEL_CONFIG0, ICM426XX_ACCEL_UI_FILT_BW_LOW_LATENCY | ICM426XX_GYRO_UI_FILT_BW_LOW_LATENCY);
 
     // Configure interrupt pin
-    spiWriteReg(dev, ICM426XX_RA_INT_CONFIG, ICM426XX_INT1_MODE_PULSED | ICM426XX_INT1_DRIVE_CIRCUIT_PP | ICM426XX_INT1_POLARITY_ACTIVE_HIGH);
-    spiWriteReg(dev, ICM426XX_RA_INT_CONFIG0, ICM426XX_UI_DRDY_INT_CLEAR_ON_SBR);
+    ICM_WRITE_REG(dev, ICM426XX_RA_INT_CONFIG, ICM426XX_INT1_MODE_PULSED | ICM426XX_INT1_DRIVE_CIRCUIT_PP | ICM426XX_INT1_POLARITY_ACTIVE_HIGH);
+    ICM_WRITE_REG(dev, ICM426XX_RA_INT_CONFIG0, ICM426XX_UI_DRDY_INT_CLEAR_ON_SBR);
 
-    spiWriteReg(dev, ICM426XX_RA_INT_SOURCE0, ICM426XX_UI_DRDY_INT1_EN_ENABLED);
+    ICM_WRITE_REG(dev, ICM426XX_RA_INT_SOURCE0, ICM426XX_UI_DRDY_INT1_EN_ENABLED);
 
     uint8_t intConfig1Value = spiReadRegMsk(dev, ICM426XX_RA_INT_CONFIG1);
     // Datasheet says: "User should change setting to 0 from default setting of 1, for proper INT1 and INT2 pin operation"
     intConfig1Value &= ~(1 << ICM426XX_INT_ASYNC_RESET_BIT);
     intConfig1Value |= (ICM426XX_INT_TPULSE_DURATION_8 | ICM426XX_INT_TDEASSERT_DISABLED);
 
-    spiWriteReg(dev, ICM426XX_RA_INT_CONFIG1, intConfig1Value);
+    ICM_WRITE_REG(dev, ICM426XX_RA_INT_CONFIG1, intConfig1Value);
 
     // Disable AFSR to prevent stalls in gyro output
     uint8_t intfConfig1Value = spiReadRegMsk(dev, ICM426XX_INTF_CONFIG1);
     intfConfig1Value &= ~ICM426XX_INTF_CONFIG1_AFSR_MASK;
     intfConfig1Value |= ICM426XX_INTF_CONFIG1_AFSR_DISABLE;
-    spiWriteReg(dev, ICM426XX_INTF_CONFIG1, intfConfig1Value);
+    ICM_WRITE_REG(dev, ICM426XX_INTF_CONFIG1, intfConfig1Value);
 
     // Turn on gyro and acc on again so ODR and FSR can be configured
     turnGyroAccOn(dev);
@@ -427,9 +436,9 @@ void icm426xxGyroInit(gyroDev_t *gyro)
     // This sets the gyro/accel to the maximum FSR, depending on the chip
     // ICM42605, ICM_42688P: 2000DPS and 16G.
     // IIM42653: 4000DPS and 32G
-    spiWriteReg(dev, ICM426XX_RA_GYRO_CONFIG0, (0 << 5) | (odrConfig & 0x0F));
+    ICM_WRITE_REG(dev, ICM426XX_RA_GYRO_CONFIG0, (0 << 5) | (odrConfig & 0x0F));
     delay(15);
-    spiWriteReg(dev, ICM426XX_RA_ACCEL_CONFIG0, (0 << 5) | (odrConfig & 0x0F));
+    ICM_WRITE_REG(dev, ICM426XX_RA_ACCEL_CONFIG0, (0 << 5) | (odrConfig & 0x0F));
     delay(15);
 }
 

@@ -58,6 +58,7 @@
 #include "sensors/boardalignment.h"
 #include "sensors/gyro.h"
 #include "sensors/gyro_init.h"
+#include "debug_gpio/debug_gpio.h"
 
 #if ((TARGET_FLASH_SIZE > 128) && (defined(USE_GYRO_SPI_ICM20601) || defined(USE_GYRO_SPI_ICM20689) || defined(USE_GYRO_SPI_MPU6500)))
 #define USE_GYRO_SLEW_LIMITER
@@ -407,6 +408,9 @@ static FAST_CODE void gyroUpdateSensor(gyroSensor_t *gyroSensor)
 
 FAST_CODE void gyroUpdate(void)
 {
+#ifdef USE_DEBUG_GPIO
+    debugGpioPC1Low();
+#endif
     // ensure that gyroADC don't contain a stale value
     float adcSum[XYZ_AXIS_COUNT] = {0};
 
@@ -442,6 +446,9 @@ FAST_CODE void gyroUpdate(void)
         gyro.sampleSum[Z] += gyro.gyroADC[Z];
         gyro.sampleCount++;
     }
+#ifdef USE_DEBUG_GPIO
+    debugGpioPC1High();
+#endif
 }
 
 #define GYRO_FILTER_FUNCTION_NAME filterGyro
