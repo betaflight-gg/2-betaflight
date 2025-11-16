@@ -111,6 +111,8 @@
 #include "io/usb_cdc_hid.h"
 #endif
 
+#include "debug_gpio/debug_gpio.h"
+
 #include "tasks.h"
 
 #ifdef ANTC_LOG
@@ -167,6 +169,41 @@ static void taskMain(timeUs_t currentTimeUs)
     flashfsEraseAsync();
 #endif
 }
+
+#ifdef USE_DEBUG_GPIO
+static void taskDebugGpioTest(timeUs_t currentTimeUs)
+{
+    UNUSED(currentTimeUs);
+
+    static uint8_t currentPin = 0;
+
+    // 先全部拉低
+    debugGpioPC0Low();
+    debugGpioPC1Low();
+    debugGpioPC2Low();
+    debugGpioPC3Low();
+
+    // 当前选择的脚拉高
+    switch (currentPin) {
+    default:
+    case 0:
+        debugGpioPC0High();
+        break;
+    case 1:
+        debugGpioPC1High();
+        break;
+    case 2:
+        debugGpioPC2High();
+        break;
+    case 3:
+        debugGpioPC3High();
+        break;
+    }
+
+    // 下一个 pin，0~3 循环
+    currentPin = (currentPin + 1) & 0x03;
+}
+#endif
 
 static void taskHandleSerial(timeUs_t currentTimeUs)
 {
@@ -521,6 +558,9 @@ task_attribute_t task_attributes[TASK_COUNT] = {
 #ifdef USE_GIMBAL
     [TASK_GIMBAL] = DEFINE_TASK("GIMBAL", NULL, NULL, gimbalUpdate, TASK_PERIOD_HZ(100), TASK_PRIORITY_MEDIUM),
 #endif
+#ifdef USE_DEBUG_GPIO
+    [TASK_DEBUG_GPIO_TEST] = DEFINE_TASK("DBG_GPIO", NULL, NULL, taskDebugGpioTest, TASK_PERIOD_US(1000), TASK_PRIORITY_LOWEST),
+#endif
 };
 
 task_t *getTask(unsigned taskId)
@@ -547,6 +587,10 @@ void tasksInit(void)
 
 #ifdef ANTC_LOG
     antcLogInit();
+#endif
+
+#ifdef USE_DEBUG_GPIO
+    // setTaskEnabled(TASK_DEBUG_GPIO_TEST, true);
 #endif
 
     const bool useBatteryVoltage = batteryConfig()->voltageMeterSource != VOLTAGE_METER_NONE;
