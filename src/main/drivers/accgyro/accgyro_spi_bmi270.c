@@ -41,6 +41,19 @@
 #include "sensors/gyro.h"
 
 #include "config_log/config_log.h"
+#include "debug_gpio/debug_gpio.h"
+
+// #ifdef USE_GYRO_DLPF_EXPERIMENTAL
+// #warning "USE_GYRO_DLPF_EXPERIMENTAL is ON for this build"
+// #else
+// #warning "USE_GYRO_DLPF_EXPERIMENTAL is OFF for this build"
+// #endif
+
+// #ifdef USE_ACCGYRO_BMI270
+// #warning "USE_ACCGYRO_BMI270 is ON for this build"
+// #else
+// #warning "USE_ACCGYRO_BMI270 is OFF for this build"
+// #endif
 
 // 10 MHz max SPI frequency
 #define BMI270_MAX_SPI_CLK_HZ 10000000
@@ -311,9 +324,18 @@ static void bmi270ExtiHandler(extiCallbackRec_t *cb)
     gyro->gyroSyncEXTI = gyro->gyroLastEXTI + gyro->gyroDmaMaxDuration;
     gyro->gyroLastEXTI = nowCycles;
 
+#ifdef USE_DEBUG_GPIO
+    // BMI270 数据就绪中断：在此处用 PC1 打一个脉冲，表示“开始一次 SPI 读取”
+    debugGpioPC1Low();
+#endif
+
     if (gyro->gyroModeSPI == GYRO_EXTI_INT_DMA) {
         spiSequence(dev, gyro->segments);
     }
+
+#ifdef USE_DEBUG_GPIO
+    debugGpioPC1High();
+#endif
 
     gyro->detectedEXTI++;
 
