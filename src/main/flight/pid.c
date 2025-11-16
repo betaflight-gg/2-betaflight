@@ -63,6 +63,7 @@
 #include "sensors/gyro.h"
 
 #include "pid.h"
+#include "debug_gpio/debug_gpio.h"
 
 typedef enum {
     LEVEL_MODE_OFF = 0,
@@ -1241,6 +1242,10 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
 #endif // USE_CHIRP
 
     // ----------PID controller----------
+#ifdef USE_DEBUG_GPIO
+    // PC3：整帧角速度环 PID 计算窗口（一次 PID loop 低->高 脉冲）
+    debugGpioPC3Low();
+#endif
     for (flight_dynamics_index_t axis = FD_ROLL; axis <= FD_YAW; ++axis) {
 
 #ifdef USE_CHIRP
@@ -1523,6 +1528,10 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
             pidData[axis].Sum = pidSum;
         }
     }
+
+#ifdef USE_DEBUG_GPIO
+    debugGpioPC3High();
+#endif
 
 #ifdef USE_WING
     // When PASSTHRU_MODE is active - reset all PIDs to zero so the aircraft won't snap out of control
