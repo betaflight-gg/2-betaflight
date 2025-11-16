@@ -35,7 +35,7 @@ void antcLogSendUserDatafloat6(uint8_t group, float a, float b, float c, float d
 // 任务函数，每20ms调用一次
 void antcLogTask(timeUs_t currentTimeUs) {
     static timeUs_t lastSendTime = 0;
-    const timeDelta_t sendInterval = 20000; // 20ms = 20000us
+    const timeDelta_t sendInterval = 1000; // 20ms = 20000us
 
     if (lastSendTime == 0 || cmpTimeUs(currentTimeUs, lastSendTime) >= sendInterval) {
         lastSendTime = currentTimeUs;
