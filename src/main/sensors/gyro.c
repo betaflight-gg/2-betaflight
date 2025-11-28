@@ -58,8 +58,8 @@
 #include "sensors/boardalignment.h"
 #include "sensors/gyro.h"
 #include "sensors/gyro_init.h"
-#include "debug_gpio/debug_gpio.h"
-#include "config_log/config_log.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
+#include "A_GG_DEBUG_LOG/debug_log.h"
 
 #if ((TARGET_FLASH_SIZE > 128) && (defined(USE_GYRO_SPI_ICM20601) || defined(USE_GYRO_SPI_ICM20689) || defined(USE_GYRO_SPI_MPU6500)))
 #define USE_GYRO_SLEW_LIMITER

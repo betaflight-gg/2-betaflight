@@ -40,8 +40,8 @@
 
 #include "sensors/gyro.h"
 
-#include "config_log/config_log.h"
-#include "debug_gpio/debug_gpio.h"
+#include "A_GG_DEBUG_LOG/debug_log.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
 
 // #ifdef USE_GYRO_DLPF_EXPERIMENTAL
 // #warning "USE_GYRO_DLPF_EXPERIMENTAL is ON for this build"

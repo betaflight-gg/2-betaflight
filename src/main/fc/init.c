@@ -42,8 +42,8 @@
 #include "config/config.h"
 #include "config/config_eeprom.h"
 #include "config/feature.h"
-#include "debug_gpio/debug_gpio.h"
-#include "config_log/config_log.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
+#include "A_GG_DEBUG_LOG/debug_log.h"
 
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/adc.h"

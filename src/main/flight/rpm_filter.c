@@ -34,7 +34,7 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 
-#include "debug_gpio/debug_gpio.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
 #include "pg/motor.h"
 
 #include "scheduler/scheduler.h"

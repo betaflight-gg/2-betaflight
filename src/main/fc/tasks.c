@@ -111,7 +111,7 @@
 #include "io/usb_cdc_hid.h"
 #endif
 
-#include "debug_gpio/debug_gpio.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
 
 #include "tasks.h"
 

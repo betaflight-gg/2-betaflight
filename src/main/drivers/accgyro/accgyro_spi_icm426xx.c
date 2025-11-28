@@ -47,7 +47,7 @@
 #include "sensors/gyro.h"
 #include "pg/gyrodev.h"
 
-#include "config_log/config_log.h"
+#include "A_GG_DEBUG_LOG/debug_log.h"
 
 #define ICM_WRITE_REG(dev_, reg_, val_)   \
     do {                                  \

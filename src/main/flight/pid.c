@@ -63,7 +63,7 @@
 #include "sensors/gyro.h"
 
 #include "pid.h"
-#include "debug_gpio/debug_gpio.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
 
 typedef enum {
     LEVEL_MODE_OFF = 0,
