@@ -29,6 +29,7 @@
 
 #include "build/build_config.h"
 #include "build/debug.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
 
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
@@ -298,6 +299,11 @@ STATIC_UNIT_TESTED void imuMahonyAHRSupdate(float dt,
 
 STATIC_UNIT_TESTED void imuUpdateEulerAngles(void)
 {
+#ifdef USE_DEBUG_GPIO
+    // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
+    debugGpioPC1High();
+#endif
+
     quaternionProducts buffer;
 
     if (FLIGHT_MODE(HEADFREE_MODE)) {
@@ -317,6 +323,11 @@ STATIC_UNIT_TESTED void imuUpdateEulerAngles(void)
     if (attitude.values.yaw < 0) {
         attitude.values.yaw += 3600;
     }
+
+#ifdef USE_DEBUG_GPIO
+    // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
+    debugGpioPC1Low();
+#endif
 }
 
 static bool imuIsAccelerometerHealthy(void)

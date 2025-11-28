@@ -171,6 +171,8 @@ static void taskMain(timeUs_t currentTimeUs)
 }
 
 #ifdef USE_DEBUG_GPIO
+// 屏蔽测试函数：PC0/1/2用于测量任务执行频率
+/*
 static void taskDebugGpioTest(timeUs_t currentTimeUs)
 {
     UNUSED(currentTimeUs);
@@ -203,6 +205,7 @@ static void taskDebugGpioTest(timeUs_t currentTimeUs)
     // 下一个 pin，0~3 循环
     currentPin = (currentPin + 1) & 0x03;
 }
+*/
 #endif
 
 static void taskHandleSerial(timeUs_t currentTimeUs)
@@ -559,7 +562,8 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_GIMBAL] = DEFINE_TASK("GIMBAL", NULL, NULL, gimbalUpdate, TASK_PERIOD_HZ(100), TASK_PRIORITY_MEDIUM),
 #endif
 #ifdef USE_DEBUG_GPIO
-    [TASK_DEBUG_GPIO_TEST] = DEFINE_TASK("DBG_GPIO", NULL, NULL, taskDebugGpioTest, TASK_PERIOD_US(1000), TASK_PRIORITY_LOWEST),
+    // 屏蔽：taskDebugGpioTest 已注释，PC0/1/2用于测量任务频率
+    // [TASK_DEBUG_GPIO_TEST] = DEFINE_TASK("DBG_GPIO", NULL, NULL, taskDebugGpioTest, TASK_PERIOD_US(1000), TASK_PRIORITY_LOWEST),
 #endif
 };
 

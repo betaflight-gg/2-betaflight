@@ -483,7 +483,7 @@ void configLogDumpPidProfiles(void)
             profile->tpa_rate,
             profile->tpa_breakpoint);
 
-        for (pidIndex_e axis = PID_ROLL; axis <= PID_YAW; axis++) {
+        for (pidIndex_e axis = PID_ROLL; axis <= PID_LEVEL; axis++) {
             configLogDumpPidAxis(profile, axis, profileIndex);
         }
     }

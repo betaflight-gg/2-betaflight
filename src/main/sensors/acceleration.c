@@ -27,6 +27,7 @@
 #ifdef USE_ACC
 
 #include "build/debug.h"
+#include "A_GG_DEBUG_PIN/debug_pin.h"
 
 #include "common/filter.h"
 #include "common/utils.h"
@@ -76,6 +77,11 @@ static inline void postProcessAccelerometer(void)
 {
     static vector3_t accAdcPrev;
 
+#ifdef USE_DEBUG_GPIO
+    // PC0: ACC滤波任务执行标记（上拉->下拉 = 一次执行）
+    debugGpioPC0High();
+#endif
+
     for (unsigned axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
 
         // Apply anti-alias filter for attitude task (if enabled)
@@ -102,6 +108,11 @@ static inline void postProcessAccelerometer(void)
 
     DEBUG_SET(DEBUG_ACCELEROMETER, 2, lrintf(acc.accMagnitude * 1e3f));
     DEBUG_SET(DEBUG_ACCELEROMETER, 4, lrintf(acc.jerkMagnitude * 1e3f));
+
+#ifdef USE_DEBUG_GPIO
+    // PC0: ACC滤波任务执行标记（上拉->下拉 = 一次执行）
+    debugGpioPC0Low();
+#endif
 }
 
 void accUpdate(timeUs_t currentTimeUs)

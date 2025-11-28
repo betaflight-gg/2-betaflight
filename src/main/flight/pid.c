@@ -552,6 +552,14 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float calcHorizonLevelStrength(void)
 STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_t *pidProfile, const rollAndPitchTrims_t *angleTrim,
                                                         float currentPidSetpoint, float horizonLevelStrength)
 {
+#ifdef USE_DEBUG_GPIO
+    // PC2: PID角度环执行标记（上拉->下拉 = 一次执行）
+    // 只在第一个轴（ROLL）时标记，避免重复
+    if (axis == FD_ROLL) {
+        debugGpioPC2High();
+    }
+#endif
+
     // Applies only to axes that are in Angle mode
     // We now use Acro Rates, transformed into the range +/- 1, to provide setpoints
     float angleLimit = pidProfile->angle_limit;
@@ -631,6 +639,15 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     }
 
     DEBUG_SET(DEBUG_CURRENT_ANGLE, axis, lrintf(currentAngle * 10.0f)); // current angle
+
+#ifdef USE_DEBUG_GPIO
+    // PC2: PID角度环执行标记（上拉->下拉 = 一次执行）
+    // 只在最后一个轴（PITCH）时标记，避免重复
+    if (axis == FD_PITCH) {
+        debugGpioPC2Low();
+    }
+#endif
+
     return currentPidSetpoint;
 }
 
@@ -1244,7 +1261,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     // ----------PID controller----------
 #ifdef USE_DEBUG_GPIO
     // PC3：整帧角速度环 PID 计算窗口（一次 PID loop 低->高 脉冲）
-    debugGpioPC3Low();
+    // debugGpioPC3Low();  // 屏蔽：PC0/1/2用于测量任务频率
 #endif
     for (flight_dynamics_index_t axis = FD_ROLL; axis <= FD_YAW; ++axis) {
 
@@ -1530,7 +1547,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     }
 
 #ifdef USE_DEBUG_GPIO
-    debugGpioPC3High();
+    // debugGpioPC3High();  // 屏蔽：PC0/1/2用于测量任务频率
 #endif
 
 #ifdef USE_WING
