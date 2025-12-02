@@ -11,6 +11,7 @@
 #include "common/time.h"
 #include "flight/imu.h"
 #include "config/config.h"
+#include "sensors/acceleration.h"
 
 // 发送6个float数据
 void antcLogSendUserDatafloat6(uint8_t group, float a, float b, float c, float d, float e, float f) {
@@ -28,6 +29,26 @@ void antcLogSendUserDatafloat6(uint8_t group, float a, float b, float c, float d
         p.data[_cnt++] = BYTE0(temp);
         // memcpy(&p.data[_cnt], &values[i], sizeof(float));
         // _cnt += sizeof(float);
+    }
+
+    p.dataLen = _cnt;
+    antcLogUartSend(&p);
+}
+
+// 发送9个float数据
+void antcLogSendUserDatafloat9(uint8_t group, float a, float b, float c, float d, float e, float f, float g, float h, float i) {
+    uint8_t _cnt = 0;
+    antc_log_atkp_t p;
+
+    p.msgID = ANTC_LOG_UP_USER_DATA1 + group - 1;
+
+    float values[9] = {a, b, c, d, e, f, g, h, i};
+    for (uint8_t j = 0; j < 9; j++) {
+        float temp = values[j];
+        p.data[_cnt++] = BYTE3(temp);
+        p.data[_cnt++] = BYTE2(temp);
+        p.data[_cnt++] = BYTE1(temp);
+        p.data[_cnt++] = BYTE0(temp);
     }
 
     p.dataLen = _cnt;
@@ -58,7 +79,20 @@ void antcLogTask(timeUs_t currentTimeUs) {
         antcLogSendUserDatafloat6(1, rollSetpoint, pitchSetpoint, yawSetpoint, 
                                    rollActual, pitchActual, yawActual);
 
+        // 发送group2数据：实际参与角速度(3个) + 参与姿态估计的加速度(3个) + 实际姿态估计的角度(3个)
 #ifdef USE_ACC
+        float accX = acc.accADC.x;
+        float accY = acc.accADC.y;
+        float accZ = acc.accADC.z;
+        
+        float rollAngle = attitude.values.roll / 10.0f;   // 转换为度
+        float pitchAngle = attitude.values.pitch / 10.0f; // 转换为度
+        float yawAngle = attitude.values.yaw / 10.0f;     // 转换为度
+        
+        antcLogSendUserDatafloat9(2, rollActual, pitchActual, yawActual,
+                                  accX, accY, accZ,
+                                  rollAngle, pitchAngle, yawAngle);
+        
         // 获取角度环PID参数
         // Roll角度环参数
         float rollAngleTarget = pidRuntime.angleTarget[AI_ROLL];  // 角度目标（度）
@@ -77,13 +111,13 @@ void antcLogTask(timeUs_t currentTimeUs) {
         float angleEarthRef = pidRuntime.angleEarthRef;            // 地球参考增益
         
         // 发送角度环PID参数：roll目标, roll当前, roll误差, pitch目标, pitch当前, pitch误差
-        antcLogSendUserDatafloat6(2, rollAngleTarget, rollCurrentAngle, rollErrorAngle,
+        antcLogSendUserDatafloat6(3, rollAngleTarget, rollCurrentAngle, rollErrorAngle,
                                    pitchAngleTarget, pitchCurrentAngle, pitchErrorAngle);
         
         // 发送角度环PID配置参数：角度增益, 角度限制, 前馈增益, 地球参考增益, roll角度模式, pitch角度模式
         float rollInAngleMode = pidRuntime.axisInAngleMode[FD_ROLL] ? 1.0f : 0.0f;
         float pitchInAngleMode = pidRuntime.axisInAngleMode[FD_PITCH] ? 1.0f : 0.0f;
-        antcLogSendUserDatafloat6(3, angleGain, angleLimit, angleFeedforwardGain,
+        antcLogSendUserDatafloat6(4, angleGain, angleLimit, angleFeedforwardGain,
                                    angleEarthRef, rollInAngleMode, pitchInAngleMode);
 #endif // USE_ACC
     }
