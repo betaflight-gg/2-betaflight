@@ -13,6 +13,32 @@
 #include "config/config.h"
 #include "sensors/acceleration.h"
 
+// 控制各数据组是否发送的宏定义（可通过条件编译控制）
+#ifndef ANTC_LOG_ENABLE_GROUP1
+#define ANTC_LOG_ENABLE_GROUP1 0
+#endif
+
+#ifndef ANTC_LOG_ENABLE_GROUP2
+#define ANTC_LOG_ENABLE_GROUP2 1
+#endif
+
+#ifndef ANTC_LOG_ENABLE_GROUP3
+#define ANTC_LOG_ENABLE_GROUP3 1
+#endif
+
+// 各数据组的默认发送频率（微秒）
+#ifndef ANTC_LOG_GROUP1_INTERVAL_US
+#define ANTC_LOG_GROUP1_INTERVAL_US 20000  // 20ms
+#endif
+
+#ifndef ANTC_LOG_GROUP2_INTERVAL_US
+#define ANTC_LOG_GROUP2_INTERVAL_US 20000  // 20ms
+#endif
+
+#ifndef ANTC_LOG_GROUP3_INTERVAL_US
+#define ANTC_LOG_GROUP3_INTERVAL_US 20000  // 20ms
+#endif
+
 // 发送6个float数据
 void antcLogSendUserDatafloat6(uint8_t group, float a, float b, float c, float d, float e, float f) {
     uint8_t _cnt = 0;
@@ -55,18 +81,16 @@ void antcLogSendUserDatafloat9(uint8_t group, float a, float b, float c, float d
     antcLogUartSend(&p);
 }
 
-// 任务函数，每20ms调用一次
-void antcLogTask(timeUs_t currentTimeUs) {
+// 发送Group1数据：内环PID的期望角速度和实际角速度
+// roll期望, pitch期望, yaw期望, roll实际, pitch实际, yaw实际
+static void antcLogSendGroup1PidRateData(timeUs_t currentTimeUs, timeDelta_t sendInterval) {
+#if ANTC_LOG_ENABLE_GROUP1
     static timeUs_t lastSendTime = 0;
-    const timeDelta_t sendInterval = 1000; // 20ms = 20000us
-
+    
     if (lastSendTime == 0 || cmpTimeUs(currentTimeUs, lastSendTime) >= sendInterval) {
         lastSendTime = currentTimeUs;
-
-        // 获取内环PID的期望角速度和实际角速度
-        // 期望角速度：pidRuntime.previousPidSetpoint[axis]
-        // 实际角速度：gyro.gyroADCf[axis]
         
+        // 获取内环PID的期望角速度和实际角速度
         float rollSetpoint = pidRuntime.previousPidSetpoint[FD_ROLL];
         float pitchSetpoint = pidRuntime.previousPidSetpoint[FD_PITCH];
         float yawSetpoint = pidRuntime.previousPidSetpoint[FD_YAW];
@@ -78,49 +102,70 @@ void antcLogTask(timeUs_t currentTimeUs) {
         // 发送数据：roll期望, pitch期望, yaw期望, roll实际, pitch实际, yaw实际
         antcLogSendUserDatafloat6(1, rollSetpoint, pitchSetpoint, yawSetpoint, 
                                    rollActual, pitchActual, yawActual);
-
-        // 发送group2数据：实际参与角速度(3个) + 参与姿态估计的加速度(3个) + 实际姿态估计的角度(3个)
-#ifdef USE_ACC
-        float accX = acc.accADC.x;
-        float accY = acc.accADC.y;
-        float accZ = acc.accADC.z;
-        
-        float rollAngle = attitude.values.roll / 10.0f;   // 转换为度
-        float pitchAngle = attitude.values.pitch / 10.0f; // 转换为度
-        float yawAngle = attitude.values.yaw / 10.0f;     // 转换为度
-        
-        antcLogSendUserDatafloat9(2, rollActual, pitchActual, yawActual,
-                                  accX, accY, accZ,
-                                  rollAngle, pitchAngle, yawAngle);
-        
-        // 获取角度环PID参数
-        // Roll角度环参数
-        float rollAngleTarget = pidRuntime.angleTarget[AI_ROLL];  // 角度目标（度）
-        float rollCurrentAngle = attitude.values.roll / 10.0f;     // 当前角度（度，从decidegrees转换）
-        float rollErrorAngle = rollAngleTarget - rollCurrentAngle; // 角度误差（度）
-        
-        // Pitch角度环参数
-        float pitchAngleTarget = pidRuntime.angleTarget[AI_PITCH]; // 角度目标（度）
-        float pitchCurrentAngle = attitude.values.pitch / 10.0f;   // 当前角度（度，从decidegrees转换）
-        float pitchErrorAngle = pitchAngleTarget - pitchCurrentAngle; // 角度误差（度）
-        
-        // 角度环PID参数
-        float angleGain = pidRuntime.angleGain;                    // 角度环增益
-        float angleLimit = (float)currentPidProfile->angle_limit; // 角度限制（度）
-        float angleFeedforwardGain = pidRuntime.angleFeedforwardGain; // 角度前馈增益
-        float angleEarthRef = pidRuntime.angleEarthRef;            // 地球参考增益
-        
-        // 发送角度环PID参数：roll目标, roll当前, roll误差, pitch目标, pitch当前, pitch误差
-        antcLogSendUserDatafloat6(3, rollAngleTarget, rollCurrentAngle, rollErrorAngle,
-                                   pitchAngleTarget, pitchCurrentAngle, pitchErrorAngle);
-        
-        // 发送角度环PID配置参数：角度增益, 角度限制, 前馈增益, 地球参考增益, roll角度模式, pitch角度模式
-        float rollInAngleMode = pidRuntime.axisInAngleMode[FD_ROLL] ? 1.0f : 0.0f;
-        float pitchInAngleMode = pidRuntime.axisInAngleMode[FD_PITCH] ? 1.0f : 0.0f;
-        antcLogSendUserDatafloat6(4, angleGain, angleLimit, angleFeedforwardGain,
-                                   angleEarthRef, rollInAngleMode, pitchInAngleMode);
-#endif // USE_ACC
     }
+#else
+    UNUSED(currentTimeUs);
+    UNUSED(sendInterval);
+#endif
+}
+
+// 发送Group2数据：姿态估计快照数据（gyro 3个 + acc 3个 + 姿态角度 3个）
+// gyroX, gyroY, gyroZ, accX, accY, accZ, rollAngle, pitchAngle, yawAngle
+static void antcLogSendGroup2ImuAttitudeSnapshot(timeUs_t currentTimeUs, timeDelta_t sendInterval) {
+#if ANTC_LOG_ENABLE_GROUP2 && defined(USE_ACC)
+    static timeUs_t lastSendTime = 0;
+    
+    if (lastSendTime == 0 || cmpTimeUs(currentTimeUs, lastSendTime) >= sendInterval) {
+        lastSendTime = currentTimeUs;
+        
+        // 使用全局快照数据
+        antcLogSendUserDatafloat9(2, 
+                                  imuAttitudeSnapshot.gyroX,
+                                  imuAttitudeSnapshot.gyroY,
+                                  imuAttitudeSnapshot.gyroZ,
+                                  imuAttitudeSnapshot.accX,
+                                  imuAttitudeSnapshot.accY,
+                                  imuAttitudeSnapshot.accZ,
+                                  imuAttitudeSnapshot.rollAngle,
+                                  imuAttitudeSnapshot.pitchAngle,
+                                  imuAttitudeSnapshot.yawAngle);
+    }
+#else
+    UNUSED(currentTimeUs);
+    UNUSED(sendInterval);
+#endif
+}
+
+// 发送Group3数据：原始传感器数据快照（对齐前的原始gyro和acc数据）
+// gyroRawX, gyroRawY, gyroRawZ, accRawX, accRawY, accRawZ
+static void antcLogSendGroup3RawSensorSnapshot(timeUs_t currentTimeUs, timeDelta_t sendInterval) {
+#if ANTC_LOG_ENABLE_GROUP3
+    static timeUs_t lastSendTime = 0;
+    
+    if (lastSendTime == 0 || cmpTimeUs(currentTimeUs, lastSendTime) >= sendInterval) {
+        lastSendTime = currentTimeUs;
+        
+        // 使用全局原始传感器快照数据
+        antcLogSendUserDatafloat6(3, 
+                                  imuRawSensorSnapshot.gyroRawX,
+                                  imuRawSensorSnapshot.gyroRawY,
+                                  imuRawSensorSnapshot.gyroRawZ,
+                                  imuRawSensorSnapshot.accRawX,
+                                  imuRawSensorSnapshot.accRawY,
+                                  imuRawSensorSnapshot.accRawZ);
+    }
+#else
+    UNUSED(currentTimeUs);
+    UNUSED(sendInterval);
+#endif
+}
+
+// 任务函数，每20ms调用一次
+void antcLogTask(timeUs_t currentTimeUs) {
+    // 调用各个数据组的发送函数，每个组可以独立控制频率
+    antcLogSendGroup1PidRateData(currentTimeUs, ANTC_LOG_GROUP1_INTERVAL_US);
+    antcLogSendGroup2ImuAttitudeSnapshot(currentTimeUs, ANTC_LOG_GROUP2_INTERVAL_US);
+    antcLogSendGroup3RawSensorSnapshot(currentTimeUs, ANTC_LOG_GROUP3_INTERVAL_US);
 }
 
 // 初始化函数

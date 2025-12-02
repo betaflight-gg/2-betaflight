@@ -48,6 +48,7 @@
 #ifdef USE_DYN_NOTCH_FILTER
 #include "flight/dyn_notch_filter.h"
 #endif
+#include "flight/imu.h"
 #include "flight/rpm_filter.h"
 
 #include "io/beeper.h"
@@ -414,6 +415,13 @@ static FAST_CODE void gyroUpdateSensor(gyroSensor_t *gyroSensor)
         gyroSensor->gyroDev.gyroADC.y = gyroSensor->gyroDev.gyroADCRaw[Y] - gyroSensor->gyroDev.gyroZero[Y];
         gyroSensor->gyroDev.gyroADC.z = gyroSensor->gyroDev.gyroADCRaw[Z] - gyroSensor->gyroDev.gyroZero[Z];
 #endif
+
+#ifdef ANTC_LOG
+        // 记录对齐前的陀螺仪原始数据快照
+        imuRawSensorSnapshot.gyroRawX = (float)gyroSensor->gyroDev.gyroADCRaw[X];
+        imuRawSensorSnapshot.gyroRawY = (float)gyroSensor->gyroDev.gyroADCRaw[Y];
+        imuRawSensorSnapshot.gyroRawZ = (float)gyroSensor->gyroDev.gyroADCRaw[Z];
+#endif // ANTC_LOG
 
         if (gyroSensor->gyroDev.gyroAlign == ALIGN_CUSTOM) {
             alignSensorViaMatrix(&gyroSensor->gyroDev.gyroADC, &gyroSensor->gyroDev.rotationMatrix);

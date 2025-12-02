@@ -34,6 +34,8 @@
 
 #include "config/feature.h"
 
+#include "flight/imu.h"
+
 #include "sensors/acceleration_init.h"
 #include "sensors/boardalignment.h"
 #include "sensors/gyro.h"
@@ -126,6 +128,13 @@ void accUpdate(timeUs_t currentTimeUs)
     for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
         acc.accADC.v[axis] = acc.dev.ADCRaw[axis];
     }
+
+#ifdef ANTC_LOG
+    // 记录对齐前的加速度计原始数据快照
+    imuRawSensorSnapshot.accRawX = (float)acc.dev.ADCRaw[X];
+    imuRawSensorSnapshot.accRawY = (float)acc.dev.ADCRaw[Y];
+    imuRawSensorSnapshot.accRawZ = (float)acc.dev.ADCRaw[Z];
+#endif // ANTC_LOG
 
     alignAccelerometer();
     calibrateAccelerometer();

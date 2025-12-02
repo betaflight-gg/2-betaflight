@@ -58,6 +58,35 @@ extern attitudeEulerAngles_t attitude;
 extern matrix33_t rMat;
 extern quaternion_t imuAttitudeQuaternion; //attitude quaternion to use in blackbox
 
+#ifdef ANTC_LOG
+// 姿态估计快照数据结构：用于记录送入imuMahonyAHRSupdate的gyro和acc数据，以及姿态估计后的角度
+typedef struct {
+    float gyroX;      // 陀螺仪X轴（度/秒）
+    float gyroY;      // 陀螺仪Y轴（度/秒）
+    float gyroZ;      // 陀螺仪Z轴（度/秒）
+    float accX;       // 加速度计X轴
+    float accY;       // 加速度计Y轴
+    float accZ;       // 加速度计Z轴
+    float rollAngle;  // 姿态估计后的roll角度（度）
+    float pitchAngle; // 姿态估计后的pitch角度（度）
+    float yawAngle;   // 姿态估计后的yaw角度（度）
+} imuAttitudeSnapshot_t;
+
+extern imuAttitudeSnapshot_t imuAttitudeSnapshot;
+
+// 原始传感器数据快照：用于记录对齐前的原始gyro和acc数据
+typedef struct {
+    float gyroRawX;   // 陀螺仪X轴原始ADC值（对齐前）
+    float gyroRawY;   // 陀螺仪Y轴原始ADC值（对齐前）
+    float gyroRawZ;   // 陀螺仪Z轴原始ADC值（对齐前）
+    float accRawX;    // 加速度计X轴原始ADC值（对齐前）
+    float accRawY;    // 加速度计Y轴原始ADC值（对齐前）
+    float accRawZ;    // 加速度计Z轴原始ADC值（对齐前）
+} imuRawSensorSnapshot_t;
+
+extern imuRawSensorSnapshot_t imuRawSensorSnapshot;
+#endif // ANTC_LOG
+
 typedef struct imuConfig_s {
     uint16_t imu_dcm_kp;          // DCM filter proportional gain ( x 10000)
     uint16_t imu_dcm_ki;          // DCM filter integral gain ( x 10000)

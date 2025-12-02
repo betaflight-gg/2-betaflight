@@ -113,6 +113,11 @@ quaternion_t offset = QUATERNION_INITIALIZE;
 attitudeEulerAngles_t attitude = EULER_INITIALIZE;
 quaternion_t imuAttitudeQuaternion = QUATERNION_INITIALIZE;
 
+#ifdef ANTC_LOG
+imuAttitudeSnapshot_t imuAttitudeSnapshot = {0};
+imuRawSensorSnapshot_t imuRawSensorSnapshot = {0};
+#endif // ANTC_LOG
+
 PG_REGISTER_WITH_RESET_TEMPLATE(imuConfig_t, imuConfig, PG_IMU_CONFIG, 3);
 
 #ifdef USE_RACE_PRO
@@ -323,6 +328,13 @@ STATIC_UNIT_TESTED void imuUpdateEulerAngles(void)
     if (attitude.values.yaw < 0) {
         attitude.values.yaw += 3600;
     }
+
+#ifdef ANTC_LOG
+    // 记录姿态估计后的角度快照（转换为度）
+    imuAttitudeSnapshot.rollAngle = attitude.values.roll / 10.0f;
+    imuAttitudeSnapshot.pitchAngle = attitude.values.pitch / 10.0f;
+    imuAttitudeSnapshot.yawAngle = attitude.values.yaw / 10.0f;
+#endif // ANTC_LOG
 
 #ifdef USE_DEBUG_GPIO
     // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
@@ -724,6 +736,17 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
     }
 
     const bool useAcc = imuIsAccelerometerHealthy(); // all smoothed accADC values are within 10% of 1G
+
+#ifdef ANTC_LOG
+    // 记录送入imuMahonyAHRSupdate的gyro和acc快照
+    imuAttitudeSnapshot.gyroX = gyroAverage[X];
+    imuAttitudeSnapshot.gyroY = gyroAverage[Y];
+    imuAttitudeSnapshot.gyroZ = gyroAverage[Z];
+    imuAttitudeSnapshot.accX = acc.accADC.x;
+    imuAttitudeSnapshot.accY = acc.accADC.y;
+    imuAttitudeSnapshot.accZ = acc.accADC.z;
+#endif // ANTC_LOG
+
     imuMahonyAHRSupdate(dt,
                         DEGREES_TO_RADIANS(gyroAverage[X]), DEGREES_TO_RADIANS(gyroAverage[Y]), DEGREES_TO_RADIANS(gyroAverage[Z]),
                         useAcc, acc.accADC.x, acc.accADC.y, acc.accADC.z,
