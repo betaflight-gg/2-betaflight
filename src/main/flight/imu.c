@@ -304,11 +304,6 @@ STATIC_UNIT_TESTED void imuMahonyAHRSupdate(float dt,
 
 STATIC_UNIT_TESTED void imuUpdateEulerAngles(void)
 {
-#ifdef USE_DEBUG_GPIO
-    // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
-    debugGpioPC1High();
-#endif
-
     quaternionProducts buffer;
 
     if (FLIGHT_MODE(HEADFREE_MODE)) {
@@ -336,10 +331,6 @@ STATIC_UNIT_TESTED void imuUpdateEulerAngles(void)
     imuAttitudeSnapshot.yawAngle = attitude.values.yaw / 10.0f;
 #endif // ANTC_LOG
 
-#ifdef USE_DEBUG_GPIO
-    // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
-    debugGpioPC1Low();
-#endif
 }
 
 static bool imuIsAccelerometerHealthy(void)
@@ -746,6 +737,10 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
     imuAttitudeSnapshot.accY = acc.accADC.y;
     imuAttitudeSnapshot.accZ = acc.accADC.z;
 #endif // ANTC_LOG
+#ifdef USE_DEBUG_GPIO
+    // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
+    debugGpioPC1High();
+#endif
 
     imuMahonyAHRSupdate(dt,
                         DEGREES_TO_RADIANS(gyroAverage[X]), DEGREES_TO_RADIANS(gyroAverage[Y]), DEGREES_TO_RADIANS(gyroAverage[Z]),
@@ -754,6 +749,11 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
                         imuCalcKpGain(currentTimeUs, useAcc, gyroAverage));
 
     imuUpdateEulerAngles();
+    
+#ifdef USE_DEBUG_GPIO
+    // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
+    debugGpioPC1Low();
+#endif
 }
 
 #endif
