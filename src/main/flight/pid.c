@@ -555,9 +555,9 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
 #ifdef USE_DEBUG_GPIO
     // PC2: PID角度环执行标记（上拉->下拉 = 一次执行）
     // 只在第一个轴（ROLL）时标记，避免重复
-    if (axis == FD_ROLL) {
+    // if (axis == FD_ROLL) {
         debugGpioPC2High();
-    }
+    // }
 #endif
 
     // Applies only to axes that are in Angle mode
@@ -643,9 +643,9 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
 #ifdef USE_DEBUG_GPIO
     // PC2: PID角度环执行标记（上拉->下拉 = 一次执行）
     // 只在最后一个轴（PITCH）时标记，避免重复
-    if (axis == FD_PITCH) {
+    // if (axis == FD_PITCH) {
         debugGpioPC2Low();
-    }
+    // }
 #endif
 
     return currentPidSetpoint;
