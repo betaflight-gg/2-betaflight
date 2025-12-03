@@ -85,6 +85,16 @@ typedef struct {
 } imuRawSensorSnapshot_t;
 
 extern imuRawSensorSnapshot_t imuRawSensorSnapshot;
+
+// 角度环快照数据结构：用于记录pidLevel中角度环计算的数据（只记录pitch轴）
+typedef struct {
+    float pitchAngleTarget;           // pitch轴目标角度（度）
+    float pitchCurrentAngle;           // pitch轴当前角度（度）
+    float pitchErrorAngleGain;         // pitch轴 errorAngle * angleGain
+    float pitchAngleFeedforward;       // pitch轴前馈值
+} pidAngleLevelSnapshot_t;
+
+extern pidAngleLevelSnapshot_t pidAngleLevelSnapshot;
 #endif // ANTC_LOG
 
 typedef struct imuConfig_s {

@@ -25,6 +25,7 @@ typedef struct {
 #define BYTE3(dwTemp) (*((uint8_t *)(&dwTemp) + 3))
 
 // 接口函数声明
+void antcLogSendUserDatafloat4(uint8_t group, float a, float b, float c, float d);
 void antcLogSendUserDatafloat6(uint8_t group, float a, float b, float c, float d, float e, float f);
 void antcLogSendUserDatafloat9(uint8_t group, float a, float b, float c, float d, float e, float f, float g, float h, float i);
 void antcLogInit(void);

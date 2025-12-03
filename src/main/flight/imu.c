@@ -116,6 +116,7 @@ quaternion_t imuAttitudeQuaternion = QUATERNION_INITIALIZE;
 #ifdef ANTC_LOG
 imuAttitudeSnapshot_t imuAttitudeSnapshot = {0};
 imuRawSensorSnapshot_t imuRawSensorSnapshot = {0};
+pidAngleLevelSnapshot_t pidAngleLevelSnapshot = {0};
 #endif // ANTC_LOG
 
 PG_REGISTER_WITH_RESET_TEMPLATE(imuConfig_t, imuConfig, PG_IMU_CONFIG, 3);

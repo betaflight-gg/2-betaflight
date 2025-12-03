@@ -26,6 +26,10 @@
 #define ANTC_LOG_ENABLE_GROUP3 1
 #endif
 
+#ifndef ANTC_LOG_ENABLE_GROUP4
+#define ANTC_LOG_ENABLE_GROUP4 1
+#endif
+
 // 各数据组的默认发送频率（微秒）
 #ifndef ANTC_LOG_GROUP1_INTERVAL_US
 #define ANTC_LOG_GROUP1_INTERVAL_US 20000  // 20ms
@@ -38,6 +42,30 @@
 #ifndef ANTC_LOG_GROUP3_INTERVAL_US
 #define ANTC_LOG_GROUP3_INTERVAL_US 20000  // 20ms
 #endif
+
+#ifndef ANTC_LOG_GROUP4_INTERVAL_US
+#define ANTC_LOG_GROUP4_INTERVAL_US 20000  // 20ms
+#endif
+
+// 发送4个float数据
+void antcLogSendUserDatafloat4(uint8_t group, float a, float b, float c, float d) {
+    uint8_t _cnt = 0;
+    antc_log_atkp_t p;
+
+    p.msgID = ANTC_LOG_UP_USER_DATA1 + group - 1;
+
+    float values[4] = {a, b, c, d};
+    for (uint8_t i = 0; i < 4; i++) {
+        float temp = values[i];
+        p.data[_cnt++] = BYTE3(temp);
+        p.data[_cnt++] = BYTE2(temp);
+        p.data[_cnt++] = BYTE1(temp);
+        p.data[_cnt++] = BYTE0(temp);
+    }
+
+    p.dataLen = _cnt;
+    antcLogUartSend(&p);
+}
 
 // 发送6个float数据
 void antcLogSendUserDatafloat6(uint8_t group, float a, float b, float c, float d, float e, float f) {
@@ -160,12 +188,35 @@ static void antcLogSendGroup3RawSensorSnapshot(timeUs_t currentTimeUs, timeDelta
 #endif
 }
 
+// 发送Group4数据：角度环快照数据（pitch轴的4个值）
+// pitchAngleTarget, pitchCurrentAngle, pitchErrorAngleGain, pitchAngleFeedforward
+static void antcLogSendGroup4AngleLevelSnapshot(timeUs_t currentTimeUs, timeDelta_t sendInterval) {
+#if ANTC_LOG_ENABLE_GROUP4
+    static timeUs_t lastSendTime = 0;
+    
+    if (lastSendTime == 0 || cmpTimeUs(currentTimeUs, lastSendTime) >= sendInterval) {
+        lastSendTime = currentTimeUs;
+        
+        // 使用全局角度环快照数据（只发送pitch轴数据）
+        antcLogSendUserDatafloat4(4, 
+                                  pidAngleLevelSnapshot.pitchAngleTarget,
+                                  pidAngleLevelSnapshot.pitchCurrentAngle,
+                                  pidAngleLevelSnapshot.pitchErrorAngleGain,
+                                  pidAngleLevelSnapshot.pitchAngleFeedforward);
+    }
+#else
+    UNUSED(currentTimeUs);
+    UNUSED(sendInterval);
+#endif
+}
+
 // 任务函数，每20ms调用一次
 void antcLogTask(timeUs_t currentTimeUs) {
     // 调用各个数据组的发送函数，每个组可以独立控制频率
     antcLogSendGroup1PidRateData(currentTimeUs, ANTC_LOG_GROUP1_INTERVAL_US);
     antcLogSendGroup2ImuAttitudeSnapshot(currentTimeUs, ANTC_LOG_GROUP2_INTERVAL_US);
     antcLogSendGroup3RawSensorSnapshot(currentTimeUs, ANTC_LOG_GROUP3_INTERVAL_US);
+    antcLogSendGroup4AngleLevelSnapshot(currentTimeUs, ANTC_LOG_GROUP4_INTERVAL_US);
 }
 
 // 初始化函数

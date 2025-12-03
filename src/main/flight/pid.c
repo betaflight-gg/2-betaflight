@@ -602,8 +602,25 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     angleTarget = constrainf(angleTarget, -angleLimit, angleLimit);
 
     const float currentAngle = (attitude.raw[axis] - angleTrim->raw[axis]) / 10.0f; // stepped at 500hz with some 4ms flat spots
+    
+#ifdef ANTC_LOG
+    // 记录pitch轴的角度环数据
+    if (axis == FD_PITCH) {
+        pidAngleLevelSnapshot.pitchAngleTarget = angleTarget;
+        pidAngleLevelSnapshot.pitchCurrentAngle = currentAngle;
+    }
+#endif // ANTC_LOG
+    
     const float errorAngle = angleTarget - currentAngle;
     float angleRate = errorAngle * pidRuntime.angleGain + angleFeedforward;
+    
+#ifdef ANTC_LOG
+    // 记录pitch轴的角度环计算结果
+    if (axis == FD_PITCH) {
+        pidAngleLevelSnapshot.pitchErrorAngleGain = errorAngle * pidRuntime.angleGain;
+        pidAngleLevelSnapshot.pitchAngleFeedforward = angleFeedforward;
+    }
+#endif // ANTC_LOG
 
     // minimise cross-axis wobble due to faster yaw responses than roll or pitch, and make co-ordinated yaw turns
     // by compensating for the effect of yaw on roll while pitched, and on pitch while rolled
