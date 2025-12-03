@@ -555,9 +555,9 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
 #ifdef USE_DEBUG_GPIO
     // PC2: PID角度环执行标记（上拉->下拉 = 一次执行）
     // 只在第一个轴（ROLL）时标记，避免重复
-    // if (axis == FD_ROLL) {
-        debugGpioPC2High();
-    // }
+    if (axis == FD_ROLL) {
+        debugLine6High();
+    }
 #endif
 
     // Applies only to axes that are in Angle mode
@@ -660,9 +660,9 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
 #ifdef USE_DEBUG_GPIO
     // PC2: PID角度环执行标记（上拉->下拉 = 一次执行）
     // 只在最后一个轴（PITCH）时标记，避免重复
-    // if (axis == FD_PITCH) {
-        debugGpioPC2Low();
-    // }
+    if (axis == FD_PITCH) {
+        debugLine6Low();
+    }
 #endif
 
     return currentPidSetpoint;
@@ -1278,7 +1278,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     // ----------PID controller----------
 #ifdef USE_DEBUG_GPIO
     // PC3：整帧角速度环 PID 计算窗口（一次 PID loop 低->高 脉冲）
-    // debugGpioPC3Low();  // 屏蔽：PC0/1/2用于测量任务频率
+    // debugLine7Low();  // 屏蔽：PC0/1/2用于测量任务频率
 #endif
     for (flight_dynamics_index_t axis = FD_ROLL; axis <= FD_YAW; ++axis) {
 
@@ -1564,7 +1564,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     }
 
 #ifdef USE_DEBUG_GPIO
-    // debugGpioPC3High();  // 屏蔽：PC0/1/2用于测量任务频率
+    // debugLine7High();  // 屏蔽：PC0/1/2用于测量任务频率
 #endif
 
 #ifdef USE_WING

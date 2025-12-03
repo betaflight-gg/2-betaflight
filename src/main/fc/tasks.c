@@ -170,44 +170,6 @@ static void taskMain(timeUs_t currentTimeUs)
 #endif
 }
 
-#ifdef USE_DEBUG_GPIO
-// 屏蔽测试函数：PC0/1/2用于测量任务执行频率
-/*
-static void taskDebugGpioTest(timeUs_t currentTimeUs)
-{
-    UNUSED(currentTimeUs);
-
-    static uint8_t currentPin = 0;
-
-    // 先全部拉低
-    debugGpioPC0Low();
-    debugGpioPC1Low();
-    debugGpioPC2Low();
-    debugGpioPC3Low();
-
-    // 当前选择的脚拉高
-    switch (currentPin) {
-    default:
-    case 0:
-        debugGpioPC0High();
-        break;
-    case 1:
-        debugGpioPC1High();
-        break;
-    case 2:
-        debugGpioPC2High();
-        break;
-    case 3:
-        debugGpioPC3High();
-        break;
-    }
-
-    // 下一个 pin，0~3 循环
-    currentPin = (currentPin + 1) & 0x03;
-}
-*/
-#endif
-
 static void taskHandleSerial(timeUs_t currentTimeUs)
 {
 #if defined(USE_VCP)

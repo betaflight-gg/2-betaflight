@@ -740,7 +740,7 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
 #endif // ANTC_LOG
 #ifdef USE_DEBUG_GPIO
     // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
-    debugGpioPC1High();
+    debugLine5High();
 #endif
 
     imuMahonyAHRSupdate(dt,
@@ -753,7 +753,7 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
     
 #ifdef USE_DEBUG_GPIO
     // PC1: 姿态估计任务执行标记（上拉->下拉 = 一次执行）
-    debugGpioPC1Low();
+    debugLine5Low();
 #endif
 }
 

@@ -81,7 +81,7 @@ static inline void postProcessAccelerometer(void)
 
 #ifdef USE_DEBUG_GPIO
     // PC0: ACC滤波任务执行标记（上拉->下拉 = 一次执行）
-    debugGpioPC0High();
+    debugLine4High();
 #endif
 
     for (unsigned axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
@@ -113,7 +113,7 @@ static inline void postProcessAccelerometer(void)
 
 #ifdef USE_DEBUG_GPIO
     // PC0: ACC滤波任务执行标记（上拉->下拉 = 一次执行）
-    debugGpioPC0Low();
+    debugLine4Low();
 #endif
 }
 

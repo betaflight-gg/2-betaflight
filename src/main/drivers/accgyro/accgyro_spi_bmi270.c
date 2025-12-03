@@ -324,18 +324,9 @@ static void bmi270ExtiHandler(extiCallbackRec_t *cb)
     gyro->gyroSyncEXTI = gyro->gyroLastEXTI + gyro->gyroDmaMaxDuration;
     gyro->gyroLastEXTI = nowCycles;
 
-#ifdef USE_DEBUG_GPIO
-    // BMI270 数据就绪中断：在此处用 PC1 打一个脉冲，表示"开始一次 SPI 读取"
-    // debugGpioPC1Low();  // 屏蔽：已用于姿态估计任务
-#endif
-
     if (gyro->gyroModeSPI == GYRO_EXTI_INT_DMA) {
         spiSequence(dev, gyro->segments);
     }
-
-#ifdef USE_DEBUG_GPIO
-    // debugGpioPC1High();  // 屏蔽：已用于姿态估计任务
-#endif
 
     gyro->detectedEXTI++;
 

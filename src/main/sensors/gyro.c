@@ -436,8 +436,8 @@ static FAST_CODE void gyroUpdateSensor(gyroSensor_t *gyroSensor)
 FAST_CODE void gyroUpdate(void)
 {
 #ifdef USE_DEBUG_GPIO
-    // debugGpioPC0Low();  // 屏蔽：已用于acc滤波任务
-    // debugGpioPC2Low();
+    // debugLine5Low();  // 屏蔽：已用于acc滤波任务
+    // debugLine6Low();
 #endif
     // ensure that gyroADC don't contain a stale value
     float adcSum[XYZ_AXIS_COUNT] = {0};
@@ -475,8 +475,8 @@ FAST_CODE void gyroUpdate(void)
         gyro.sampleCount++;
     }
 #ifdef USE_DEBUG_GPIO
-    // debugGpioPC0High();  // 屏蔽：已用于acc滤波任务
-    // debugGpioPC2High();
+    // debugLine5High();  // 屏蔽：已用于acc滤波任务
+    // debugLine6High();
 #endif
 }
 
