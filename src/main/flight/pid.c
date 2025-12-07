@@ -655,6 +655,13 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
         DEBUG_SET(DEBUG_ANGLE_TARGET, 3, lrintf(currentAngle * 10.0f)); // angle returned
     }
 
+    if(axis == FD_PITCH) {
+        DEBUG_SET(DEBUG_ANGLE_MODE, 4, lrintf(angleTarget * 10.0f)); // target angle
+        DEBUG_SET(DEBUG_ANGLE_MODE, 5, lrintf(errorAngle * pidRuntime.angleGain * 10.0f)); // un-smoothed error correction in degrees
+        DEBUG_SET(DEBUG_ANGLE_MODE, 6, lrintf(angleFeedforward * 10.0f)); // feedforward amount in degrees
+        DEBUG_SET(DEBUG_ANGLE_MODE, 7, lrintf(currentAngle * 10.0f)); // angle returned
+    }
+
     DEBUG_SET(DEBUG_CURRENT_ANGLE, axis, lrintf(currentAngle * 10.0f)); // current angle
 
 #ifdef USE_DEBUG_GPIO

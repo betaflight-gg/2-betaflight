@@ -1,12 +1,11 @@
 #include "platform.h"
 #include <stdint.h>
 
-
+#include "debug_pin.h"
 #ifdef USE_DEBUG_GPIO
 
 #include "drivers/io.h"
 #include "drivers/io_impl.h"
-#include "debug_pin.h"
 
 typedef struct {
     IO_t io;
@@ -74,6 +73,12 @@ void debugGpioToggle(debugGpioPin_e pin)
 
 // Empty implementations when USE_DEBUG_GPIO is not defined
 // These must exist even when the macro is not defined to satisfy linker
+// Undefine macros first to allow function definitions
+#undef debugGpioInit
+#undef debugGpioSetHigh
+#undef debugGpioSetLow
+#undef debugGpioToggle
+
 void debugGpioInit(void)
 {
     // Empty implementation

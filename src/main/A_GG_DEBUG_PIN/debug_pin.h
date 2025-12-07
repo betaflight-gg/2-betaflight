@@ -1,11 +1,6 @@
 #pragma once
 
 #include "platform.h"
-
-#ifdef USE_DEBUG_GPIO
-
-#include <stdint.h>
-
 typedef enum {
     DEBUG_GPIO_PIN_PC0 = 0,
     DEBUG_GPIO_PIN_PC1,
@@ -13,6 +8,10 @@ typedef enum {
     DEBUG_GPIO_PIN_PC3,
     DEBUG_GPIO_PIN_COUNT
 } debugGpioPin_e;
+
+#ifdef USE_DEBUG_GPIO
+
+#include <stdint.h>
 
 void debugGpioInit(void);
 void debugGpioSetHigh(debugGpioPin_e pin);

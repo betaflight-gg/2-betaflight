@@ -219,6 +219,9 @@ static const blackboxDeltaFieldDefinition_t blackboxMainFields[] = {
     {"rcCommand",   1, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(PREVIOUS),      .Pencode = ENCODING(TAG8_4S16), CONDITION(RC_COMMANDS)},
     {"rcCommand",   2, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(PREVIOUS),      .Pencode = ENCODING(TAG8_4S16), CONDITION(RC_COMMANDS)},
     {"rcCommand",   3, UNSIGNED, .Ipredict = PREDICT(0),       .Iencode = ENCODING(UNSIGNED_VB), .Ppredict = PREDICT(PREVIOUS),      .Pencode = ENCODING(TAG8_4S16), CONDITION(RC_COMMANDS)},
+#ifdef USE_RC_SMOOTHING_FILTER
+    {"rcCommandThrottleUnfilt", -1, UNSIGNED, .Ipredict = PREDICT(0), .Iencode = ENCODING(UNSIGNED_VB), .Ppredict = PREDICT(PREVIOUS), .Pencode = ENCODING(SIGNED_VB), CONDITION(RC_COMMANDS)},
+#endif
 
     // setpoint - define 4 fields like rcCommand to use the same encoding. setpoint[4] contains the mixer throttle
     {"setpoint",    0, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(PREVIOUS),      .Pencode = ENCODING(TAG8_4S16), CONDITION(SETPOINT)},
@@ -360,6 +363,9 @@ typedef struct blackboxMainState_s {
     int32_t axisPID_S[XYZ_AXIS_COUNT];
 
     int16_t rcCommand[4];
+#ifdef USE_RC_SMOOTHING_FILTER
+    int16_t rcCommandThrottleUnfilt;
+#endif
     int16_t setpoint[4];
     int16_t gyroADC[XYZ_AXIS_COUNT];
     int16_t gyroUnfilt[XYZ_AXIS_COUNT];
@@ -689,6 +695,9 @@ static void writeIntraframe(void)
          * Throttle lies in range [PWM_RANGE_MIN..PWM_RANGE_MAX]:
          */
         blackboxWriteUnsignedVB(blackboxCurrent->rcCommand[THROTTLE]);
+#ifdef USE_RC_SMOOTHING_FILTER
+        blackboxWriteUnsignedVB(blackboxCurrent->rcCommandThrottleUnfilt);
+#endif
     }
 
     if (testBlackboxCondition(CONDITION(SETPOINT))) {
@@ -876,6 +885,9 @@ static void writeInterframe(void)
 
     if (testBlackboxCondition(CONDITION(RC_COMMANDS))) {
         blackboxWriteTag8_4S16(deltas);
+#ifdef USE_RC_SMOOTHING_FILTER
+        blackboxWriteSignedVB(blackboxCurrent->rcCommandThrottleUnfilt - blackboxLast->rcCommandThrottleUnfilt);
+#endif
     }
     if (testBlackboxCondition(CONDITION(SETPOINT))) {
         blackboxWriteTag8_4S16(setpointDeltas);
@@ -1272,6 +1284,9 @@ static void loadMainState(timeUs_t currentTimeUs)
     for (int i = 0; i < 4; i++) {
         blackboxCurrent->rcCommand[i] = lrintf(rcCommand[i] * blackboxHighResolutionScale);
     }
+#ifdef USE_RC_SMOOTHING_FILTER
+    blackboxCurrent->rcCommandThrottleUnfilt = lrintf(getRcCommandThrottleUnfilt() * blackboxHighResolutionScale);
+#endif
 
     // log the currentPidSetpoint values applied to the PID controller
     for (int i = 0; i < XYZ_AXIS_COUNT; i++) {

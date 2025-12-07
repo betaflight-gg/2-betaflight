@@ -59,3 +59,6 @@ float getFeedforward(int axis);
 void updateRcRefreshRate(timeUs_t currentTimeUs, bool rxReceivingSignal);
 float getCurrentRxRateHz(void);
 bool getRxRateValid(void);
+#ifdef USE_RC_SMOOTHING_FILTER
+float getRcCommandThrottleUnfilt(void);
+#endif

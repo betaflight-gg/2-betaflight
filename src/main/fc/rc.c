@@ -111,6 +111,8 @@ float getFeedforward(int axis)
 #ifdef USE_RC_SMOOTHING_FILTER
 static FAST_DATA_ZERO_INIT rcSmoothingFilter_t rcSmoothingData;
 static float rcDeflectionSmoothed[3];
+// Unfiltered throttle value before RC smoothing is applied
+static float rcCommandThrottleUnfilt = 0.0f;
 #endif // USE_RC_SMOOTHING_FILTER
 
 float getSetpointRate(int axis)
@@ -404,6 +406,8 @@ static FAST_CODE void processRcSmoothingFilter(void)
                 ? lrintf(rxDataToSmooth[i])
                 : lrintf(rxDataToSmooth[i]) - 1000);
         }
+        // Save unfiltered throttle value before smoothing (always save, even if smoothing is disabled)
+        rcCommandThrottleUnfilt = rcCommand[THROTTLE];
     }
 
     if (!rxConfig()->rc_smoothing) {
@@ -922,5 +926,10 @@ void initRcProcessing(void)
 rcSmoothingFilter_t *getRcSmoothingData(void)
 {
     return &rcSmoothingData;
+}
+
+float getRcCommandThrottleUnfilt(void)
+{
+    return rcCommandThrottleUnfilt;
 }
 #endif // USE_RC_SMOOTHING_FILTER
