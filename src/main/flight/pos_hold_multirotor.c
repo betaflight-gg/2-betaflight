@@ -126,7 +126,28 @@ bool isAutopilotInControl(void)
 }
 
 bool posHoldFailure(void) {
-    return FLIGHT_MODE(POS_HOLD_MODE) && (!posHold.isControlOk || !posHold.areSensorsOk);
+    return posHoldFailureReason() != POSHOLD_FAILURE_NONE;
+}
+
+posHoldFailureReason_e posHoldFailureReason(void)
+{
+    if (!FLIGHT_MODE(POS_HOLD_MODE)) {
+        return POSHOLD_FAILURE_NONE;
+    }
+
+    if (!positionEstimatorIsValidXY()) {
+        return POSHOLD_FAILURE_POSITION;
+    }
+
+    if (positionEstimatorIsHeadingRequired() && !imuIsHeadingValid()) {
+        return POSHOLD_FAILURE_HEADING;
+    }
+
+    if (!posHold.isControlOk || !posHold.areSensorsOk) {
+        return POSHOLD_FAILURE_CONTROL;
+    }
+
+    return POSHOLD_FAILURE_NONE;
 }
 
 // Pre-engagement readiness: the entry conditions alone, without the

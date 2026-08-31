@@ -24,11 +24,19 @@
 
 #define POSHOLD_TASK_RATE_HZ 100 // hz
 
+typedef enum {
+    POSHOLD_FAILURE_NONE = 0,
+    POSHOLD_FAILURE_POSITION,
+    POSHOLD_FAILURE_HEADING,
+    POSHOLD_FAILURE_CONTROL,
+} posHoldFailureReason_e;
+
 void posHoldInit(void);
 void updatePosHold(timeUs_t currentTimeUs);
 bool isAutopilotInControl(void);
 
 bool posHoldFailure(void);
+posHoldFailureReason_e posHoldFailureReason(void);
 bool posHoldReady(void);
 
 #endif // USE_POSITION_HOLD

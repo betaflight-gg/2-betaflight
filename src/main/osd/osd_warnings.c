@@ -396,7 +396,18 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     missionAbortActive = FLIGHT_MODE(AUTOPILOT_MODE) && flightPlanNavGetAbortReason() != FP_ABORT_NONE;
 #endif
     if (osdWarnGetState(OSD_WARNING_POSHOLD_FAILED) && posHoldFailure() && !missionAbortActive) {
-        tfp_sprintf(warningText, "POSHOLD FAIL");
+        switch (posHoldFailureReason()) {
+        case POSHOLD_FAILURE_POSITION:
+            tfp_sprintf(warningText, "POSHOLD: NO POSITION");
+            break;
+        case POSHOLD_FAILURE_HEADING:
+            tfp_sprintf(warningText, "POSHOLD: HEADING INVALID");
+            break;
+        case POSHOLD_FAILURE_CONTROL:
+        default:
+            tfp_sprintf(warningText, "POSHOLD: CONTROL FAIL");
+            break;
+        }
         *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
         *blinking = true;
         return;
