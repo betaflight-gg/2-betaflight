@@ -755,9 +755,9 @@ $(AUTOHYDRATE_STAMPS):
 .PHONY: validate-deps
 validate-deps:
 	$(V1) mkdir -p "$(OBJECT_DIR)"; \
-	printf '%s\n' $(SRC) | sort > "$(SRC_MANIFEST).new"; \
+	printf '%s\n' $(SRC) | LC_ALL=C sort > "$(SRC_MANIFEST).new"; \
 	if [ -f "$(SRC_MANIFEST)" ] && ! cmp -s "$(SRC_MANIFEST)" "$(SRC_MANIFEST).new"; then \
-	    if comm -23 "$(SRC_MANIFEST)" "$(SRC_MANIFEST).new" | grep -q .; then \
+	    if LC_ALL=C comm -23 "$(SRC_MANIFEST)" "$(SRC_MANIFEST).new" | grep -q .; then \
 	        echo "Sources removed — clearing stale dependency files"; \
 	        find "$(OBJECT_DIR)" -name '*.d' -delete 2>/dev/null; \
 	    fi; \
