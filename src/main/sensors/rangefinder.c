@@ -75,8 +75,12 @@ rangefinder_t rangefinder;
 
 PG_REGISTER_WITH_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig, PG_RANGEFINDER_CONFIG, 0);
 
+#ifndef DEFAULT_RANGEFINDER_HARDWARE
+#define DEFAULT_RANGEFINDER_HARDWARE RANGEFINDER_NONE
+#endif
+
 PG_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig,
-    .rangefinder_hardware = RANGEFINDER_NONE,
+    .rangefinder_hardware = DEFAULT_RANGEFINDER_HARDWARE,
 );
 
 #ifdef USE_RANGEFINDER_HCSR04
@@ -385,4 +389,3 @@ bool rangefinderIsHealthy(void)
     return (millis() - rangefinder.lastValidResponseTimeMs) < RANGEFINDER_HARDWARE_TIMEOUT_MS;
 }
 #endif
-

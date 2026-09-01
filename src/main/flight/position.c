@@ -97,8 +97,12 @@ void positionInit(void)
 
 PG_REGISTER_WITH_RESET_TEMPLATE(positionConfig_t, positionConfig, PG_POSITION, 7);
 
+#ifndef DEFAULT_ALTITUDE_SOURCE
+#define DEFAULT_ALTITUDE_SOURCE ALTITUDE_SOURCE_DEFAULT
+#endif
+
 PG_RESET_TEMPLATE(positionConfig_t, positionConfig,
-    .altitude_source = ALTITUDE_SOURCE_DEFAULT,
+    .altitude_source = DEFAULT_ALTITUDE_SOURCE,
     .altitude_prefer_baro = 100,
     .altitude_lpf = 300,
     .altitude_d_lpf = 300,

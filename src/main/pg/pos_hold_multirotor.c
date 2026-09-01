@@ -34,9 +34,13 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(posHoldConfig_t, posHoldConfig, PG_POSHOLD_CONFIG, 2);
 
+#ifndef DEFAULT_POSHOLD_POSITION_SOURCE
+#define DEFAULT_POSHOLD_POSITION_SOURCE POSHOLD_SOURCE_AUTO
+#endif
+
 PG_RESET_TEMPLATE(posHoldConfig_t, posHoldConfig,
     .deadband = 5,
-    .positionSource = POSHOLD_SOURCE_AUTO,
+    .positionSource = DEFAULT_POSHOLD_POSITION_SOURCE,
     .opticalflowQualityMin = 30,
     .opticalflowMaxRange = 400,
 );

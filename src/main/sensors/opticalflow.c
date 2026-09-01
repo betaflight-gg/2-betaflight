@@ -73,8 +73,12 @@ static void applyLPF(vector2_t * flowRates);
 
 PG_REGISTER_WITH_RESET_TEMPLATE(opticalflowConfig_t, opticalflowConfig, PG_OPTICALFLOW_CONFIG, 1);
 
+#ifndef DEFAULT_OPTICALFLOW_HARDWARE
+#define DEFAULT_OPTICALFLOW_HARDWARE OPTICALFLOW_NONE
+#endif
+
 PG_RESET_TEMPLATE(opticalflowConfig_t, opticalflowConfig,
-    .opticalflow_hardware = OPTICALFLOW_NONE,
+    .opticalflow_hardware = DEFAULT_OPTICALFLOW_HARDWARE,
     .rotation = 0,
     .flip_x = 0,
     .flow_lpf = 100
