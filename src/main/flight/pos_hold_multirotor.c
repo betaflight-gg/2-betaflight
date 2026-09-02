@@ -118,6 +118,8 @@ void updatePosHold(timeUs_t currentTimeUs) {
             }
         }
     }
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 6, posHold.areSensorsOk ? 1 : 0);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 7, isAutopilotInControl() ? 1 : 0);
 }
 
 bool isAutopilotInControl(void)

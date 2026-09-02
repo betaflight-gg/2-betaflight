@@ -185,6 +185,7 @@ static float qaccelXY = Q_ACCEL_XY; // value to use for QAccel
 
 static timeUs_t lastXYMeasurementUs = 0;
 static timeUs_t lastZMeasurementUs = 0;
+static uint8_t estimatorDebugStatus;
 
 static sensorCalEntry_t zCal[CAL_Z_COUNT];
 
@@ -392,6 +393,7 @@ static void feedGPSMeasurements(timeUs_t nowUs)
         kalmanUpdateVelocity(&kfNorth, (float)gpsSol.velned.velN, rVel);
 
         lastXYMeasurementUs = nowUs;
+        estimatorDebugStatus |= (1 << 4); // GPS measurement fused this cycle
     }
 
     // Z altitude measurement
@@ -561,6 +563,7 @@ static void feedOpticalFlowMeasurements(timeUs_t nowUs)
     kalmanUpdateVelocity(&kfNorth, velNorth, flowR);
 
     lastXYMeasurementUs = nowUs;
+    estimatorDebugStatus |= (1 << 3); // optical-flow measurement fused this cycle
 #else
     UNUSED(nowUs);
 #endif
@@ -590,6 +593,7 @@ void positionEstimatorUpdate(void)
 {
     const timeUs_t nowUs = micros();
     const float dt = HZ_TO_INTERVAL(TASK_ALTITUDE_RATE_HZ);
+    estimatorDebugStatus = 0;
 
     const bool wantXY = positionEstimatorWantXYFusion();
     if (wantXY != xyEnabled) {
@@ -644,6 +648,22 @@ void positionEstimatorUpdate(void)
     const float xyVar = (kalmanGetPositionVariance(&kfEast) + kalmanGetPositionVariance(&kfNorth)) * 0.5f;
     estimate.trustXY = 1.0f / (1.0f + xyVar / 10000.0f);
     estimate.trustZ = 1.0f / (1.0f + kalmanGetPositionVariance(&kfUp) / 10000.0f);
+
+    if (estimate.isValidXY) estimatorDebugStatus |= (1 << 0);
+    if (sensors(SENSOR_OPTICALFLOW) && isOpticalflowHealthy()) estimatorDebugStatus |= (1 << 1);
+    if (sensors(SENSOR_RANGEFINDER) && rangefinderIsHealthy()) estimatorDebugStatus |= (1 << 2);
+    if (estimate.isValidZ) estimatorDebugStatus |= (1 << 5);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 0, (estimatorDebugStatus & (1 << 0)) != 0);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 1, (estimatorDebugStatus & (1 << 1)) != 0);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 2, (estimatorDebugStatus & (1 << 2)) != 0);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 3, (estimatorDebugStatus & (1 << 3)) != 0);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 4, (estimatorDebugStatus & (1 << 4)) != 0);
+    DEBUG_SET(DEBUG_POSITION_ESTIMATOR, 5, (estimatorDebugStatus & (1 << 5)) != 0);
+}
+
+uint8_t positionEstimatorDebugStatus(void)
+{
+    return estimatorDebugStatus;
 }
 
 const positionEstimate3d_t *positionEstimatorGetEstimate(void)

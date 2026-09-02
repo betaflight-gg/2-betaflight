@@ -176,8 +176,10 @@ void mtOpticalflowReceiveNewData(const uint8_t * bufferPtr) {
     opticalflowSensorData.flowValid   = dtValid;
 
     if (dtValid) {
-        opticalflowSensorData.flowRate.x = (float)pkt->motionX / MTF01_OPTICAL_FLOW_SCALE / dt_s;
-        opticalflowSensorData.flowRate.y = (float)pkt->motionY / MTF01_OPTICAL_FLOW_SCALE / dt_s;
+        // MT reports image motion with the opposite sign to the body rotation
+        // convention used by the optical-flow rotation compensation.
+        opticalflowSensorData.flowRate.x = -(float)pkt->motionX / MTF01_OPTICAL_FLOW_SCALE / dt_s;
+        opticalflowSensorData.flowRate.y = -(float)pkt->motionY / MTF01_OPTICAL_FLOW_SCALE / dt_s;
         opticalflowSensorData.quality    = pkt->quality * 100 / 255;
     } else {
         opticalflowSensorData.flowRate.x = 0;

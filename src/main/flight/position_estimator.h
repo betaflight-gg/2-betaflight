@@ -56,6 +56,7 @@ float positionEstimatorGetTrustXY(void);
 // True when GPS has a fix and is not excluded by positionSource config.
 // Use to decide whether heading validity is required before engaging position hold.
 bool positionEstimatorIsHeadingRequired(void);
+uint8_t positionEstimatorDebugStatus(void);
 
 // Reset (e.g. on arm/disarm)
 void positionEstimatorResetZ(void);
