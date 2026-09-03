@@ -319,15 +319,15 @@ void altitudeControl(float targetAltitudeCm, float taskIntervalS, float targetAl
     const float hoverOffset = (float)autopilotGetEffectiveHoverThrottlePwm() - PWM_RANGE_MIN;
 
 
-    float throttleOffset = altitudeP
-                         + altitudeI
-                         + altitudeD
-                         + altitudeF
-                         + hoverOffset;
+    const float uncompensatedThrottleOffset = altitudeP
+                                            + altitudeI
+                                            + altitudeD
+                                            + altitudeF
+                                            + hoverOffset;
 
     // Tilt Compensation and limiting
     const float tiltMultiplier = 1.0f / fmaxf(getCosTiltAngle(), 0.5f);
-    throttleOffset *= tiltMultiplier;
+    const float throttleOffset = uncompensatedThrottleOffset * tiltMultiplier;
 
     float newThrottle = PWM_RANGE_MIN + throttleOffset;
     newThrottle = constrainf(newThrottle, autopilotConfig()->throttleMin, autopilotConfig()->throttleMax);
@@ -343,6 +343,20 @@ void altitudeControl(float targetAltitudeCm, float taskIntervalS, float targetAl
     DEBUG_SET(DEBUG_AUTOPILOT_ALTITUDE, 5, lrintf(altitudeI));
     DEBUG_SET(DEBUG_AUTOPILOT_ALTITUDE, 6, lrintf(altitudeD)); // includes innate feedforward since D is from error
     DEBUG_SET(DEBUG_AUTOPILOT_ALTITUDE, 7, lrintf(altitudeF)); // feedforward
+
+    // Extended AUTOPILOT_ALTITUDE channels recorded directly by Blackbox.
+    // Divide the potentially large height/velocity values by 10 so they fit
+    // safely in the signed 16-bit Blackbox storage used for debug channels.
+    if (debugMode == DEBUG_AUTOPILOT_ALTITUDE) {
+        altitudeDebug[0] = constrain(lrintf(altitudeErrorCm / 10.0f), INT16_MIN, INT16_MAX); // altitude error, 10 cm
+        altitudeDebug[1] = constrain(lrintf(verticalVelocity / 10.0f), INT16_MIN, INT16_MAX); // vertical velocity, 10 cm/s
+        altitudeDebug[2] = constrain(lrintf(targetVerticalVelocity / 10.0f), INT16_MIN, INT16_MAX); // target velocity, 10 cm/s
+        altitudeDebug[3] = constrain(lrintf(velocityError / 10.0f), INT16_MIN, INT16_MAX); // velocity error, 10 cm/s
+        altitudeDebug[4] = constrain(lrintf(itermRelax * 100.0f), INT16_MIN, INT16_MAX); // I-term relax, percent
+        altitudeDebug[5] = constrain(lrintf(dBoost * 100.0f), INT16_MIN, INT16_MAX); // D boost, percent
+        altitudeDebug[6] = constrain(lrintf(hoverOffset), INT16_MIN, INT16_MAX); // hover throttle offset
+        altitudeDebug[7] = constrain(lrintf(uncompensatedThrottleOffset), INT16_MIN, INT16_MAX); // pre-tilt throttle offset
+    }
 }
 
 static void updatePositionHoldTarget(void)

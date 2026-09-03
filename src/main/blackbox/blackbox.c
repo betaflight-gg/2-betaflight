@@ -265,6 +265,14 @@ static const blackboxDeltaFieldDefinition_t blackboxMainFields[] = {
     {"debug",       5, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(DEBUG_LOG)},
     {"debug",       6, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(DEBUG_LOG)},
     {"debug",       7, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(DEBUG_LOG)},
+    {"altDebug",    0, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    1, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    2, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    3, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    4, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    5, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    6, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
+    {"altDebug",    7, SIGNED,   .Ipredict = PREDICT(0),       .Iencode = ENCODING(SIGNED_VB),   .Ppredict = PREDICT(AVERAGE_2),     .Pencode = ENCODING(SIGNED_VB), CONDITION(ALTITUDE_DEBUG)},
     /* Motors only rarely drops under minthrottle (when stick falls below mincommand), so predict minthrottle for it and use *unsigned* encoding (which is large for negative numbers but more compact for positive ones): */
     {"motor",       0, UNSIGNED, .Ipredict = PREDICT(MINMOTOR), .Iencode = ENCODING(UNSIGNED_VB), .Ppredict = PREDICT(AVERAGE_2), .Pencode = ENCODING(SIGNED_VB), CONDITION(AT_LEAST_MOTORS_1)},
     /* Subsequent motors base their I-frame values on the first one, P-frame values on the average of last two frames: */
@@ -373,6 +381,7 @@ typedef struct blackboxMainState_s {
     int16_t imuAttitudeQuaternion3[XYZ_AXIS_COUNT]; // only x,y,z is stored; w is always positive
 #endif
     int16_t debug[DEBUG16_VALUE_COUNT];
+    int16_t altitudeDebug[DEBUG16_VALUE_COUNT];
     int16_t motor[MAX_SUPPORTED_MOTORS];
     int16_t servo[MAX_SUPPORTED_SERVOS];
 #ifdef USE_DSHOT_TELEMETRY
@@ -586,6 +595,9 @@ static bool testBlackboxConditionUncached(flightLogFieldCondition_e condition)
     case CONDITION(DEBUG_LOG):
         return (debugMode != DEBUG_NONE) && isFieldEnabled(FIELD_SELECT(DEBUG_LOG));
 
+    case CONDITION(ALTITUDE_DEBUG):
+        return (debugMode == DEBUG_AUTOPILOT_ALTITUDE) && isFieldEnabled(FIELD_SELECT(DEBUG_LOG));
+
     case CONDITION(NEVER):
         return false;
 
@@ -758,6 +770,10 @@ static void writeIntraframe(void)
 
     if (testBlackboxCondition(CONDITION(DEBUG_LOG))) {
         blackboxWriteSigned16VBArray(blackboxCurrent->debug, DEBUG16_VALUE_COUNT);
+    }
+
+    if (testBlackboxCondition(CONDITION(ALTITUDE_DEBUG))) {
+        blackboxWriteSigned16VBArray(blackboxCurrent->altitudeDebug, DEBUG16_VALUE_COUNT);
     }
 
     if (isFieldEnabled(FIELD_SELECT(MOTOR))) {
@@ -943,6 +959,10 @@ static void writeInterframe(void)
 
     if (testBlackboxCondition(CONDITION(DEBUG_LOG))) {
         blackboxWriteMainStateArrayUsingAveragePredictor(offsetof(blackboxMainState_t, debug), DEBUG16_VALUE_COUNT);
+    }
+
+    if (testBlackboxCondition(CONDITION(ALTITUDE_DEBUG))) {
+        blackboxWriteMainStateArrayUsingAveragePredictor(offsetof(blackboxMainState_t, altitudeDebug), DEBUG16_VALUE_COUNT);
     }
 
     if (isFieldEnabled(FIELD_SELECT(MOTOR))) {
@@ -1293,6 +1313,7 @@ static void loadMainState(timeUs_t currentTimeUs)
 
     for (int i = 0; i < DEBUG16_VALUE_COUNT; i++) {
         blackboxCurrent->debug[i] = debug[i];
+        blackboxCurrent->altitudeDebug[i] = altitudeDebug[i];
     }
 
     const int motorCount = getMotorCount();

@@ -24,6 +24,9 @@
 
 #define DEBUG16_VALUE_COUNT 8
 extern int16_t debug[DEBUG16_VALUE_COUNT];
+// Blackbox-only extension for altitude-controller diagnostics. Keeping this
+// separate preserves the legacy MSP/OSD debug[0..7] interface.
+extern int16_t altitudeDebug[DEBUG16_VALUE_COUNT];
 extern uint8_t debugMode;
 
 #define DEBUG_SET(mode, index, value) do { if (debugMode == (mode)) { debug[(index)] = (value); } } while (0)
